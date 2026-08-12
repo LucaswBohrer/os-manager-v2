@@ -2,6 +2,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import NotFound from "@/pages/NotFound";
 import Home from "@/pages/Home";
+import ClientsPage from "@/pages/ClientsPage";
 import ModulePlaceholder from "@/pages/ModulePlaceholder";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -11,7 +12,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/clientes"><ModulePlaceholder module="clientes" /></Route>
+      <Route path="/clientes" component={ClientsPage} />
       <Route path="/equipamentos"><ModulePlaceholder module="equipamentos" /></Route>
       <Route path="/ordens/nova"><ModulePlaceholder module="ordens" /></Route>
       <Route path="/ordens/:id"><ModulePlaceholder module="ordens" /></Route>

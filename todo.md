@@ -10,10 +10,10 @@
   - [x] Configurar controle de acesso e auditoria local
 - [ ] **Fase 4: Frontend & UI (Dashboard Modular)**
   - [x] Desenvolver layout principal com navegação lateral (DashboardLayout)
-  - [ ] Criar telas de listagem e cadastro rápido de Clientes e Equipamentos
-  - [ ] Criar o fluxo de abertura, acompanhamento e atualização de Ordens de Serviço
+  - [x] Criar telas de listagem e cadastro rápido de Clientes
+  - [ ] Criar telas de listagem e cadastro de Equipamentos e o fluxo de Ordens de Serviço
 - [ ] **Fase 5: Qualidade & Testes (Vitest)**
   - [x] Escrever e executar testes unitários e de integração com Vitest
-  - [ ] Validar fluxos de dados e renderização no navegador (login autenticado pendente de sessão do usuário)
+  - [ ] Validar fluxos de dados e renderização no navegador com componentes funcionais
 - [ ] **Fase 6: Checkpoint & Publicação**
-  - [ ] Criar checkpoint estável do projeto para validação final
+  - [ ] Criar checkpoint estável final
