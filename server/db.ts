@@ -158,6 +158,48 @@ export async function getServiceOrders() {
   return await db.select().from(serviceOrders).orderBy(desc(serviceOrders.createdAt));
 }
 
+export async function getServiceOrderById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db.select().from(serviceOrders).where(eq(serviceOrders.id, id)).limit(1);
+  return rows[0] ?? null;
+}
+
+export async function updateServiceOrderDetails(id: number, diagnosis: string, laborCost: string, partsCost: string, discount: string, totalAmount: string, authorName = "Sistema") {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(serviceOrders).set({
+    diagnosis,
+    laborCost,
+    partsCost,
+    discount,
+    totalAmount,
+    updatedAt: new Date(),
+  }).where(eq(serviceOrders.id, id));
+
+  await db.insert(osHistory).values({
+    serviceOrderId: id,
+    author: authorName,
+    action: "Atualização de Orçamento/Diagnóstico",
+    description: `Diagnóstico e orçamento atualizados. Total: R$ ${totalAmount}`,
+  });
+}
+
+export async function updatePartStock(partId: number, quantityChange: number, authorName = "Sistema") {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const rows = await db.select().from(parts).where(eq(parts.id, partId)).limit(1);
+  const part = rows[0];
+  if (!part) throw new Error("Peça não encontrada");
+
+  const newQty = part.stockQty + quantityChange;
+  if (newQty < 0) throw new Error("Estoque insuficiente para esta operação");
+
+  await db.update(parts).set({ stockQty: newQty, updatedAt: new Date() }).where(eq(parts.id, partId));
+}
+
 export async function createServiceOrder(data: InsertServiceOrder, authorName = "Sistema") {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

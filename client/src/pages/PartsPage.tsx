@@ -14,6 +14,11 @@ import { toast } from "sonner";
 export default function PartsPage() {
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [isAdjustOpen, setIsAdjustOpen] = useState(false);
+  const [selectedPartId, setSelectedPartId] = useState<number | null>(null);
+  const [adjustQty, setAdjustQty] = useState("1");
+  const [adjustMode, setAdjustMode] = useState<"add" | "remove">("add");
+
   const [name, setName] = useState("");
   const [sku, setSku] = useState("");
   const [stock, setStock] = useState("0");
@@ -40,6 +45,19 @@ export default function PartsPage() {
     },
     onError: (err) => {
       toast.error(`Erro ao cadastrar peça: ${err.message}`);
+    },
+  });
+
+  const adjustStockMutation = trpc.parts.adjustStock.useMutation({
+    onSuccess: () => {
+      toast.success("Estoque ajustado com sucesso!");
+      setIsAdjustOpen(false);
+      setSelectedPartId(null);
+      setAdjustQty("1");
+      utils.parts.list.invalidate();
+    },
+    onError: (err) => {
+      toast.error(`Erro ao ajustar estoque: ${err.message}`);
     },
   });
 
@@ -175,7 +193,9 @@ export default function PartsPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm">Ajustar estoque</Button>
+                        <Button variant="outline" size="sm" onClick={() => { setSelectedPartId(part.id); setIsAdjustOpen(true); }}>
+                          Ajustar estoque
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -183,6 +203,47 @@ export default function PartsPage() {
               )}
             </CardContent>
           </Card>
+
+          <Dialog open={isAdjustOpen} onOpenChange={setIsAdjustOpen}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Ajustar Estoque de Peça</DialogTitle>
+                <DialogDescription>Adicione ou remova unidades do estoque atual.</DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="space-y-2">
+                  <Label>Operação</Label>
+                  <div className="flex gap-2">
+                    <Button type="button" variant={adjustMode === "add" ? "default" : "outline"} className="flex-1" onClick={() => setAdjustMode("add")}>
+                      Adicionar Entrada (+)
+                    </Button>
+                    <Button type="button" variant={adjustMode === "remove" ? "default" : "outline"} className="flex-1" onClick={() => setAdjustMode("remove")}>
+                      Dar Baixa / Saída (-)
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="adjustQty">Quantidade</Label>
+                  <Input id="adjustQty" type="number" min="1" value={adjustQty} onChange={e => setAdjustQty(e.target.value)} />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsAdjustOpen(false)}>Cancelar</Button>
+                <Button disabled={adjustStockMutation.isPending || !selectedPartId} onClick={() => {
+                  if (!selectedPartId) return;
+                  const qty = parseInt(adjustQty, 10);
+                  if (isNaN(qty) || qty <= 0) {
+                    toast.error("Informe uma quantidade válida");
+                    return;
+                  }
+                  const finalChange = adjustMode === "add" ? qty : -qty;
+                  adjustStockMutation.mutate({ partId: selectedPartId, quantityChange: finalChange });
+                }}>
+                  {adjustStockMutation.isPending ? "Salvando..." : "Confirmar Ajuste"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </DashboardLayout>

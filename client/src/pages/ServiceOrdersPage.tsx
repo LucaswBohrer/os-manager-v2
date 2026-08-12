@@ -39,6 +39,15 @@ export default function ServiceOrdersPage() {
   const [priority, setPriority] = useState<string>("normal");
   const [warrantyDays, setWarrantyDays] = useState<string>("90");
 
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [newStatus, setNewStatus] = useState<string>("opened");
+  const [statusNotes, setStatusNotes] = useState("");
+  const [diagnosis, setDiagnosis] = useState("");
+  const [laborCost, setLaborCost] = useState("0.00");
+  const [partsCost, setPartsCost] = useState("0.00");
+  const [discount, setDiscount] = useState("0.00");
+
   const utils = trpc.useUtils();
   const clientsQuery = trpc.clients.list.useQuery();
   const equipmentsQuery = trpc.equipments.list.useQuery(
@@ -61,6 +70,29 @@ export default function ServiceOrdersPage() {
     },
     onError: (err) => {
       toast.error(`Erro ao criar OS: ${err.message}`);
+    },
+  });
+
+  const updateStatusMutation = trpc.serviceOrders.updateStatus.useMutation({
+    onSuccess: () => {
+      toast.success("Status atualizado com sucesso!");
+      utils.serviceOrders.list.invalidate();
+      utils.dashboard.metrics.invalidate();
+      utils.dashboard.recentOrders.invalidate();
+    },
+    onError: (err) => {
+      toast.error(`Erro ao atualizar status: ${err.message}`);
+    },
+  });
+
+  const updateDetailsMutation = trpc.serviceOrders.updateDetails.useMutation({
+    onSuccess: () => {
+      toast.success("Diagnóstico e orçamento salvos!");
+      setIsDetailOpen(false);
+      utils.serviceOrders.list.invalidate();
+    },
+    onError: (err) => {
+      toast.error(`Erro ao salvar orçamento: ${err.message}`);
     },
   });
 
@@ -219,7 +251,17 @@ export default function ServiceOrdersPage() {
                           <p className="text-xs text-muted-foreground">Cliente: <strong className="text-foreground">{clientName}</strong> • Aberta em {new Date(order.createdAt).toLocaleDateString("pt-BR")}</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm">Gerenciar OS</Button>
+                          <Button variant="outline" size="sm" onClick={() => {
+                            setSelectedOrderId(order.id);
+                            setNewStatus(order.status);
+                            setDiagnosis(order.diagnosis || "");
+                            setLaborCost(order.laborCost || "0.00");
+                            setPartsCost(order.partsCost || "0.00");
+                            setDiscount(order.discount || "0.00");
+                            setIsDetailOpen(true);
+                          }}>
+                            Gerenciar OS
+                          </Button>
                         </div>
                       </div>
                     );
@@ -228,6 +270,88 @@ export default function ServiceOrdersPage() {
               )}
             </CardContent>
           </Card>
+
+          <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+            <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Gerenciar Ordem de Serviço #{selectedOrderId ? String(selectedOrderId).padStart(5, "0") : ""}</DialogTitle>
+                <DialogDescription>Atualize status, diagnóstico técnico, mão de obra e custos do orçamento.</DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-6 py-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="statusSelect">Status da OS</Label>
+                    <Select value={newStatus} onValueChange={setNewStatus}>
+                      <SelectTrigger id="statusSelect">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(statusLabels).map(([key, label]) => (
+                          <SelectItem key={key} value={key}>{label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="statusNotes">Observação da Mudança</Label>
+                    <Input id="statusNotes" placeholder="Ex: Peça encomendada" value={statusNotes} onChange={e => setStatusNotes(e.target.value)} />
+                  </div>
+                </div>
+                <Button variant="secondary" onClick={() => {
+                  if (!selectedOrderId) return;
+                  updateStatusMutation.mutate({
+                    id: selectedOrderId,
+                    status: newStatus as any,
+                    notes: statusNotes,
+                  });
+                  setStatusNotes("");
+                }}>
+                  Atualizar Status
+                </Button>
+
+                <div className="border-t pt-4 space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="diagnosis">Laudo Técnico / Diagnóstico</Label>
+                    <Textarea id="diagnosis" rows={3} placeholder="Descreva os testes realizados e a solução..." value={diagnosis} onChange={e => setDiagnosis(e.target.value)} />
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="labor">Mão de Obra (R$)</Label>
+                      <Input id="labor" value={laborCost} onChange={e => setLaborCost(e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="parts">Peças (R$)</Label>
+                      <Input id="parts" value={partsCost} onChange={e => setPartsCost(e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="discount">Desconto (R$)</Label>
+                      <Input id="discount" value={discount} onChange={e => setDiscount(e.target.value)} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsDetailOpen(false)}>Fechar</Button>
+                <Button onClick={() => {
+                  if (!selectedOrderId) return;
+                  const l = parseFloat(laborCost) || 0;
+                  const p = parseFloat(partsCost) || 0;
+                  const d = parseFloat(discount) || 0;
+                  const total = Math.max(0, l + p - d).toFixed(2);
+                  updateDetailsMutation.mutate({
+                    id: selectedOrderId,
+                    diagnosis,
+                    laborCost: l.toFixed(2),
+                    partsCost: p.toFixed(2),
+                    discount: d.toFixed(2),
+                    totalAmount: total,
+                  });
+                }}>
+                  Salvar Orçamento e Laudo
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </DashboardLayout>
