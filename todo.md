@@ -18,4 +18,4 @@
 - [ ] **Fase 6: Checkpoint & Publicação**
   - [ ] Gerar o executável Windows (.exe) e sincronizar o repositório com o GitHub
 - [x] Publicar o commit local completo em `github.com/LuquinhasBohrer/os-manager-v2` e verificar a presença dos arquivos no remoto
-- [ ] Corrigir e publicar o bootstrap Electron compatível com `type: module` para execução local no Windows
+- [x] Corrigir e publicar o bootstrap Electron compatível com `type: module` para execução local no Windows
