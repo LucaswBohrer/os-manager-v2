@@ -35,7 +35,11 @@ async function startServer() {
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   registerStorageProxy(app);
-  registerOAuthRoutes(app);
+  try {
+    registerOAuthRoutes(app);
+  } catch (e) {
+    console.log("[OAuth] Skipped in local-first offline mode.");
+  }
   // tRPC API
   app.use(
     "/api/trpc",

@@ -46,7 +46,7 @@ export default function EquipmentsPage() {
   const clients = clientsQuery.data ?? [];
   const equipments = equipmentsQuery.data ?? [];
   
-  const clientMap = new Map(clients.map(c => [c.id, c.name]));
+  const clientMap = new Map(clients.map((c: any) => [c.id, c.name]));
 
   const filtered = equipments.filter(eq => {
     const clientName = clientMap.get(eq.clientId) || "";

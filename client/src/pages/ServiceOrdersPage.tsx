@@ -100,9 +100,9 @@ export default function ServiceOrdersPage() {
   const equipments = equipmentsQuery.data ?? [];
   const orders = ordersQuery.data ?? [];
 
-  const clientMap = new Map(clients.map(c => [c.id, c.name]));
+  const clientMap = new Map(clients.map((c: any) => [c.id, c.name]));
 
-  const filtered = orders.filter(o => {
+  const filtered = orders.filter((o: any) => {
     const clientName = clientMap.get(o.clientId) || "";
     return (
       String(o.id).includes(search) ||
@@ -146,7 +146,7 @@ export default function ServiceOrdersPage() {
                         <SelectValue placeholder="Selecione o cliente..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {clients.map(c => (
+                        {clients.map((c: any) => (
                           <SelectItem key={c.id} value={String(c.id)}>{c.name} (ID #{c.id})</SelectItem>
                         ))}
                       </SelectContent>
@@ -160,7 +160,7 @@ export default function ServiceOrdersPage() {
                         <SelectValue placeholder={clientId ? "Selecione o equipamento..." : "Primeiro selecione o cliente"} />
                       </SelectTrigger>
                       <SelectContent>
-                        {equipments.map(eq => (
+                        {equipments.map((eq: any) => (
                           <SelectItem key={eq.id} value={String(eq.id)}>{eq.type} {eq.brand} {eq.model} (S/N: {eq.serialNumber || "N/D"})</SelectItem>
                         ))}
                       </SelectContent>
@@ -237,7 +237,7 @@ export default function ServiceOrdersPage() {
                 </div>
               ) : (
                 <div className="divide-y divide-border overflow-hidden rounded-xl border border-border">
-                  {filtered.map(order => {
+                      {filtered.map((order: any) => {
                     const clientName = clientMap.get(order.clientId) || `Cliente #${order.clientId}`;
                     return (
                       <div key={order.id} className="flex flex-col gap-3 p-4 transition-colors hover:bg-muted/40 sm:flex-row sm:items-center sm:justify-between">
