@@ -19,7 +19,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { startLogin } from "@/const";
+import { LocalLoginForm } from "./LocalLoginForm";
 import { useIsMobile } from "@/hooks/useMobile";
 import { ClipboardList, LayoutDashboard, LogOut, Package, PanelLeft, Settings, Users, Wrench } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
@@ -61,27 +61,7 @@ export default function DashboardLayout({
   }
 
   if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
-          <div className="flex flex-col items-center gap-6">
-            <h1 className="text-2xl font-semibold tracking-tight text-center">
-              Acesse o OS Manager
-            </h1>
-            <p className="text-sm text-muted-foreground text-center max-w-sm">
-              Entre para gerenciar clientes, equipamentos, estoque e ordens de serviço.
-            </p>
-          </div>
-          <Button
-            onClick={() => startLogin()}
-            size="lg"
-            className="w-full shadow-lg hover:shadow-xl transition-all"
-          >
-            Entrar no sistema
-          </Button>
-        </div>
-      </div>
-    );
+    return <LocalLoginForm />;
   }
 
   return (

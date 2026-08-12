@@ -1,7 +1,9 @@
-import { COOKIE_NAME } from "@shared/const";
 import { z } from "zod";
+import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
+import { sdk } from "./_core/sdk";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import * as db from "./db";
 import {
   addServiceOrderPart,
   createClient,
@@ -43,6 +45,32 @@ export const appRouter = router({
 
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
+    localLogin: publicProcedure
+      .input(z.object({
+        username: z.string().min(1),
+        password: z.string().min(1),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Credenciais padrão do modo local-first para o Windows
+        if (input.username === "admin" && input.password === "admin") {
+          const adminOpenId = "local-admin-user";
+          await db.upsertUser({
+            openId: adminOpenId,
+            name: "Administrador Local",
+            email: "admin@osmanager.local",
+            loginMethod: "local",
+            lastSignedIn: new Date(),
+          });
+          const sessionToken = await sdk.createSessionToken(adminOpenId, {
+            name: "Administrador Local",
+            expiresInMs: ONE_YEAR_MS,
+          });
+          const cookieOptions = getSessionCookieOptions(ctx.req);
+          ctx.res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+          return { success: true } as const;
+        }
+        throw new Error("Usuário ou senha inválidos. Use admin / admin");
+      }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
