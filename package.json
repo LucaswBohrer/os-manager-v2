@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development tsx watch server/_core/index.ts",
     "desktop": "electron .",
+    "electron:install": "node node_modules/electron/install.js",
     "pack:win": "electron-builder --win",
     "build": "vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "cross-env NODE_ENV=production node dist/index.js",

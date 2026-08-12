@@ -16,9 +16,11 @@ function createWindow() {
     },
   });
 
-  // Em produção local, carrega o servidor local embutido ou URL de desenvolvimento
   const startUrl = process.env.ELECTRON_START_URL || "http://localhost:3000";
-  mainWindow.loadURL(startUrl);
+  mainWindow.loadURL(startUrl).catch(() => {
+    // Fallback caso o servidor demore a subir
+    setTimeout(() => mainWindow.loadURL(startUrl), 1500);
+  });
 }
 
 app.whenReady().then(() => {
