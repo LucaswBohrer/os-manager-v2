@@ -11,9 +11,10 @@
 - [ ] **Fase 4: Frontend & UI (Dashboard Modular)**
   - [x] Desenvolver layout principal com navegação lateral (DashboardLayout)
   - [x] Criar telas de listagem e cadastro rápido de Clientes
-  - [ ] Criar telas de listagem e cadastro de Equipamentos e o fluxo de Ordens de Serviço
+  - [ ] Implementar ações completas de Equipamentos, Detalhes/Timeline de OS e Ajuste de Estoque
 - [ ] **Fase 5: Qualidade & Testes (Vitest)**
   - [x] Escrever e executar testes unitários e de integração com Vitest
-  - [ ] Validar fluxos de dados e renderização no navegador com componentes funcionais
+  - [ ] Validar a execução no aplicativo desktop nativo (Electron / Windows)
 - [ ] **Fase 6: Checkpoint & Publicação**
-  - [ ] Criar checkpoint estável final
+  - [ ] Gerar o executável Windows (.exe) e sincronizar o repositório com o GitHub
+- [x] Publicar o commit local completo em `github.com/LuquinhasBohrer/os-manager-v2` e verificar a presença dos arquivos no remoto
