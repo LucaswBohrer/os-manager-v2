@@ -117,7 +117,13 @@
       "output": "release"
     },
     "win": {
-      "target": ["nsis"]
+      "target": ["nsis"],
+      "sign": null,
+      "verifyUpdateCodeSignature": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     },
     "files": [
       "dist/**/*",
