@@ -4,6 +4,7 @@
 - [x] Roteamento principal e eliminação do erro 404 inicial
 - [x] **Evolução 1: Aprimorar a Criação de OS** (Busca robusta de clientes, cadastro inline completo, dados de equipamento livres, condições de entrada, prioridades e garantia)
 - [x] **Correção de Gerenciamento e Carregamento de OS** (Remoção de duplicidade de imports em OrderDetailPage, restaurando carregamento da rota /ordens/:id e edição de detalhes/status)
+- [x] **Correção de Redirecionamento em ServiceOrdersPage** (Adicionado hook useLocation do wouter para garantir que o botão 'Gerenciar OS' abra corretamente a página de detalhes /ordens/:id)
 - [ ] **Evolução 2: Tela Profissional da OS** (Abas de resumo, diagnóstico, orçamento, serviços, peças, estoque e timeline)
 - [x] **Correção de Sincronização de Status** (Atualização de status na página de detalhes reflete instantaneamente no painel de OS e dashboard)
 - [ ] **Evolução 3: Diagnóstico Técnico** (Laudo, causa, testes e solução executada)
