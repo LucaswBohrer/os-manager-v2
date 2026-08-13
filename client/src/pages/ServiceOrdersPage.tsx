@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { trpc } from "@/lib/trpc";
 import { ClipboardList, Plus, Search, Wrench, ShieldAlert } from "lucide-react";
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { toast } from "sonner";
 
 const statusLabels: Record<string, string> = {
@@ -31,6 +32,7 @@ const priorityLabels: Record<string, string> = {
 };
 
 export default function ServiceOrdersPage() {
+  const [, setLocation] = useLocation();
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [clientId, setClientId] = useState<string>("");
