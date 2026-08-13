@@ -17,6 +17,7 @@ function ensureDataFile() {
           name: "Administrador Local",
           email: "admin@osmanager.local",
           loginMethod: "local",
+          role: "admin",
           lastSignedIn: new Date().toISOString(),
         },
       ],
@@ -67,9 +68,9 @@ export async function upsertUser(user: any) {
   const db = readData();
   const index = db.users.findIndex((u: any) => u.openId === user.openId);
   if (index >= 0) {
-    db.users[index] = { ...db.users[index], ...user };
+    db.users[index] = { role: "admin", ...db.users[index], ...user };
   } else {
-    db.users.push({ id: db.users.length + 1, ...user });
+    db.users.push({ id: db.users.length + 1, role: "admin", ...user });
   }
   writeData(db);
 }

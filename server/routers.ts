@@ -116,7 +116,7 @@ export const appRouter = router({
 
   parts: router({
     list: protectedProcedure.query(() => getParts()),
-    create: adminProcedure
+    create: protectedProcedure
       .input(z.object({
         name: z.string().trim().min(2).max(255),
         sku: z.string().trim().max(64).optional(),
