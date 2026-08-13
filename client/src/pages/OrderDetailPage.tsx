@@ -30,6 +30,7 @@ export default function OrderDetailPage() {
   const [discount, setDiscount] = useState("0.00");
   const [selectedPartId, setSelectedPartId] = useState("");
   const [partQty, setPartQty] = useState("1");
+  const [partSearch, setPartSearch] = useState("");
 
   const utils = trpc.useUtils();
   const updateStatusMutation = trpc.serviceOrders.updateStatus.useMutation({
@@ -352,31 +353,60 @@ export default function OrderDetailPage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex flex-col md:flex-row gap-3 items-end bg-muted/40 p-4 rounded-2xl border border-border/40">
-                <div className="flex-1 w-full">
-                  <label className="text-xs font-medium">Selecionar Peça do Estoque</label>
-                  <select className="w-full mt-1 px-3 py-2 border rounded-md text-sm bg-background" value={selectedPartId} onChange={e => setSelectedPartId(e.target.value)}>
-                    <option value="">Selecione uma peça...</option>
-                    {catalogParts.map((p: any) => (
-                      <option key={p.id} value={p.id}>{p.name} (Disponível: {p.stockQty} - R$ {p.sellPrice})</option>
+              <div className="space-y-4 bg-muted/40 p-4 rounded-2xl border border-border/40">
+                <div className="flex flex-col md:flex-row gap-3 items-end">
+                  <div className="flex-1 w-full space-y-1">
+                    <label className="text-xs font-medium">Pesquisar Peça no Estoque (Nome ou SKU)</label>
+                    <input 
+                      type="text" 
+                      className="w-full px-3 py-2 border rounded-md text-sm bg-background" 
+                      placeholder="Digite para buscar peça..." 
+                      value={partSearch} 
+                      onChange={e => setPartSearch(e.target.value)} 
+                    />
+                  </div>
+                  <div className="w-32 space-y-1">
+                    <label className="text-xs font-medium">Quantidade</label>
+                    <input type="number" min="1" className="w-full px-3 py-2 border rounded-md text-sm bg-background" value={partQty} onChange={e => setPartQty(e.target.value)} />
+                  </div>
+                  <Button disabled={!selectedPartId || addPartMutation.isPending} onClick={() => {
+                    if (!selectedPartId) return;
+                    const found = catalogParts.find((p: any) => p.id === Number(selectedPartId));
+                    const unitPrice = found ? String(found.sellPrice) : "0.00";
+                    addPartMutation.mutate({
+                      serviceOrderId: order.id,
+                      partId: Number(selectedPartId),
+                      quantity: Number(partQty) || 1,
+                      unitPrice
+                    });
+                  }}>
+                    <Plus className="h-4 w-4 mr-2" /> Adicionar Peça
+                  </Button>
+                </div>
+
+                <div className="max-h-48 overflow-y-auto space-y-1 border rounded-md p-2 bg-background">
+                  {catalogParts
+                    .filter((p: any) => p.name.toLowerCase().includes(partSearch.toLowerCase()) || (p.sku && p.sku.toLowerCase().includes(partSearch.toLowerCase())))
+                    .map((p: any) => (
+                      <div 
+                        key={p.id} 
+                        onClick={() => setSelectedPartId(String(p.id))}
+                        className={`flex items-center justify-between p-2 rounded cursor-pointer text-sm transition-colors ${selectedPartId === String(p.id) ? 'bg-primary/10 border border-primary/40 font-semibold' : 'hover:bg-muted'}`}
+                      >
+                        <div>
+                          <span>{p.name}</span>
+                          {p.sku && <span className="ml-2 text-xs text-muted-foreground">(SKU: {p.sku})</span>}
+                        </div>
+                        <div className="flex items-center gap-4 text-xs">
+                          <span className="text-muted-foreground">Estoque: {p.stockQty} un.</span>
+                          <span className="font-bold text-primary">R$ {Number(p.sellPrice || 0).toFixed(2)}</span>
+                        </div>
+                      </div>
                     ))}
-                  </select>
+                  {catalogParts.filter((p: any) => p.name.toLowerCase().includes(partSearch.toLowerCase()) || (p.sku && p.sku.toLowerCase().includes(partSearch.toLowerCase()))).length === 0 && (
+                    <p className="text-xs text-center text-muted-foreground py-4">Nenhuma peça encontrada com este termo.</p>
+                  )}
                 </div>
-                <div className="w-32">
-                  <label className="text-xs font-medium">Quantidade</label>
-                  <input type="number" min="1" className="w-full mt-1 px-3 py-2 border rounded-md text-sm bg-background" value={partQty} onChange={e => setPartQty(e.target.value)} />
-                </div>
-                <Button disabled={!selectedPartId || addPartMutation.isPending} onClick={() => {
-                  if (!selectedPartId) return;
-                  addPartMutation.mutate({
-                    serviceOrderId: order.id,
-                    partId: Number(selectedPartId),
-                    quantity: Number(partQty) || 1,
-                    unitPrice: "0.00"
-                  });
-                }}>
-                  <Plus className="h-4 w-4 mr-2" /> Adicionar Peça
-                </Button>
               </div>
 
               <div className="rounded-xl border border-border/40 overflow-hidden">

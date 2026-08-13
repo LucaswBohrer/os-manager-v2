@@ -215,13 +215,33 @@ export async function addServiceOrderPart(input: any, author: string) {
   if (!db.serviceOrderParts) db.serviceOrderParts = [];
   const item = { id: Date.now(), ...input, createdAt: new Date().toISOString() };
   db.serviceOrderParts.push(item);
+
+  // Recalcular partsCost e totalAmount da OS
   const order = db.serviceOrders.find((o: any) => o.id === input.serviceOrderId);
   if (order) {
+    const associatedParts = db.serviceOrderParts.filter((p: any) => p.serviceOrderId === order.id);
+    let partsTotal = 0;
+    for (const op of associatedParts) {
+      const partDef = (db.parts || []).find((p: any) => p.id === op.partId);
+      const unit = Number(op.unitPrice || partDef?.sellPrice || 0);
+      partsTotal += unit * (op.quantity || 1);
+    }
+    order.partsCost = partsTotal.toFixed(2);
+    const labor = Number(order.laborCost || 0);
+    const disc = Number(order.discount || 0);
+    order.totalAmount = Math.max(0, partsTotal + labor - disc).toFixed(2);
+
     if (!order.timeline) order.timeline = [];
-    order.timeline.push({ date: new Date().toISOString(), action: "Peça Adicionada", description: `Peça adicionada por ${author}.` });
+    order.timeline.push({ date: new Date().toISOString(), action: "Peça Adicionada", description: `Peça adicionada (${opName(db, input.partId)} x${input.quantity}) por ${author}.` });
   }
+
   writeData(db);
   return item;
+}
+
+function opName(db: any, partId: number) {
+  const p = (db.parts || []).find((x: any) => x.id === partId);
+  return p ? p.name : `Peça #${partId}`;
 }
 
 // Métricas e Resumos para Dashboard
