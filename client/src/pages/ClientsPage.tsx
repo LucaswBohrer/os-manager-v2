@@ -93,9 +93,29 @@ export default function ClientsPage() {
                     <Label htmlFor="email">E-mail</Label>
                     <Input id="email" type="email" placeholder="cliente@email.com" value={email} onChange={e => setEmail(e.target.value)} />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="address">Endereço</Label>
-                    <Input id="address" placeholder="Rua, número, bairro, cidade" value={address} onChange={e => setAddress(e.target.value)} />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="cep">CEP</Label>
+                      <Input id="cep" placeholder="00000-000" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="address">Logradouro e Número</Label>
+                      <Input id="address" placeholder="Rua Exemplo, 123" value={address} onChange={e => setAddress(e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="neighborhood">Bairro</Label>
+                      <Input id="neighborhood" placeholder="Centro" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="city">Cidade</Label>
+                      <Input id="city" placeholder="São Paulo" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="state">UF</Label>
+                      <Input id="state" placeholder="SP" maxLength={2} />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="notes">Observações</Label>

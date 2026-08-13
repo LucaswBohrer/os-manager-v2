@@ -49,6 +49,7 @@ export default function ServiceOrdersPage() {
   const [newClientName, setNewClientName] = useState("");
   const [newClientPhone, setNewClientPhone] = useState("");
   const [newClientDoc, setNewClientDoc] = useState("");
+  const [clientSearchQuery, setClientSearchQuery] = useState("");
 
   const createClientMutation = trpc.clients.create.useMutation({
     onSuccess: (client) => {
@@ -170,16 +171,36 @@ export default function ServiceOrdersPage() {
                         </Button>
                       </div>
                     ) : (
-                      <Select value={clientId} onValueChange={val => { setClientId(val); setEquipmentId(""); }}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione o cliente..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {clients.map(c => (
-                            <SelectItem key={c.id} value={String(c.id)}>{c.name} (ID #{c.id})</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <div className="space-y-2">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <input
+                            className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                            placeholder="Pesquisar cliente por nome, tel, CPF ou e-mail..."
+                            value={clientSearchQuery}
+                            onChange={e => setClientSearchQuery(e.target.value)}
+                          />
+                        </div>
+                        <Select value={clientId} onValueChange={setClientId}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione o cliente na lista..." />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-60">
+                            {clients
+                              .filter(c => 
+                                c.name.toLowerCase().includes(clientSearchQuery.toLowerCase()) ||
+                                (c.phone && c.phone.includes(clientSearchQuery)) ||
+                                (c.document && c.document.includes(clientSearchQuery)) ||
+                                (c.email && c.email.toLowerCase().includes(clientSearchQuery.toLowerCase()))
+                              )
+                              .map(c => (
+                                <SelectItem key={c.id} value={String(c.id)}>
+                                  {c.name} {c.phone ? `(${c.phone})` : ""} {c.email ? `- ${c.email}` : ""}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     )}
                   </div>
 
