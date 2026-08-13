@@ -4,6 +4,7 @@
 - [x] Roteamento principal e eliminação do erro 404 inicial
 - [x] **Evolução 1: Aprimorar a Criação de OS** (Busca robusta de clientes, cadastro inline completo, dados de equipamento livres, condições de entrada, prioridades e garantia)
 - [ ] **Evolução 2: Tela Profissional da OS** (Abas de resumo, diagnóstico, orçamento, serviços, peças, estoque e timeline)
+- [x] **Correção de Sincronização de Status** (Atualização de status na página de detalhes reflete instantaneamente no painel de OS e dashboard)
 - [ ] **Evolução 3: Diagnóstico Técnico** (Laudo, causa, testes e solução executada)
 - [x] **Correção de Linter/TypeScript no Servidor** (Corrigir erros em server/_core/index.ts e server/routers.ts)
 - [ ] **Expansão Detalhada de Diagnóstico** (Campos persistidos para laudo, causa, testes e solução executada)
