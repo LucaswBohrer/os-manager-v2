@@ -203,3 +203,33 @@ export async function addServiceOrderPart(input: any, author: string) {
   writeData(db);
   return item;
 }
+
+// Métricas e Resumos para Dashboard
+export async function getDashboardMetrics() {
+  const db = readData();
+  const orders = db.serviceOrders || [];
+  const clients = db.clients || [];
+  const parts = db.parts || [];
+
+  const totalOrders = orders.length;
+  const openedOrders = orders.filter((o: any) => o.status === "opened" || o.status === "in_progress" || o.status === "diagnosing").length;
+  const completedOrders = orders.filter((o: any) => o.status === "completed" || o.status === "delivered").length;
+  const totalClients = clients.length;
+  const lowStockParts = parts.filter((p: any) => (p.stockQty || 0) <= (p.minStock || 2)).length;
+
+  return {
+    totalOrders,
+    openedOrders,
+    completedOrders,
+    totalClients,
+    lowStockParts,
+  };
+}
+
+export async function getRecentServiceOrders(limit: number = 5) {
+  const db = readData();
+  const orders = db.serviceOrders || [];
+  return orders
+    .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, limit);
+}
