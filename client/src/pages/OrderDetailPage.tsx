@@ -17,6 +17,12 @@ export default function OrderDetailPage() {
   const equipmentsQuery = trpc.equipments.list.useQuery();
   const historyQuery = trpc.serviceOrders.history.useQuery({ serviceOrderId: orderId }, { enabled: !!orderId });
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [editDefect, setEditDefect] = useState("");
+  const [editDiagnosis, setEditDiagnosis] = useState("");
+  const [editPriority, setEditPriority] = useState("normal");
+  const [editWarranty, setEditWarranty] = useState("90");
+
   const utils = trpc.useUtils();
   const updateStatusMutation = trpc.serviceOrders.updateStatus.useMutation({
     onSuccess: () => {
@@ -26,6 +32,18 @@ export default function OrderDetailPage() {
     },
     onError: (err) => {
       toast.error(`Erro ao atualizar status: ${err.message}`);
+    }
+  });
+
+  const updateDetailsMutation = trpc.serviceOrders.updateDetails.useMutation({
+    onSuccess: () => {
+      toast.success("Ordem de serviço atualizada com sucesso!");
+      setIsEditing(false);
+      utils.serviceOrders.list.invalidate();
+      historyQuery.refetch();
+    },
+    onError: (err) => {
+      toast.error(`Erro ao atualizar OS: ${err.message}`);
     }
   });
 
@@ -77,7 +95,10 @@ export default function OrderDetailPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Ordem de Serviço #{order.id}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold tracking-tight">Ordem de Serviço #{order.displayNumber || String(order.id).slice(-5)}</h1>
+              <Badge variant="outline" className="font-mono">ID: {order.id}</Badge>
+            </div>
             <p className="text-sm text-muted-foreground">Aberta em {new Date(order.createdAt).toLocaleDateString('pt-BR')}</p>
           </div>
         </div>
@@ -112,21 +133,89 @@ export default function OrderDetailPage() {
             <CardDescription>Informações do defeito, garantia e prioridade</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs text-muted-foreground">Prioridade</p>
-                <p className="font-medium uppercase text-sm mt-1">{order.priority}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Garantia</p>
-                <p className="font-medium text-sm mt-1">{order.warrantyDays} dias</p>
-              </div>
+            <div className="flex justify-between items-center">
+              <h3 className="text-base font-semibold">Informações do Serviço</h3>
+              {!isEditing ? (
+                <Button variant="outline" size="sm" onClick={() => {
+                  setEditDefect(order.defectReported || "");
+                  setEditDiagnosis(order.diagnosis || "");
+                  setEditPriority(order.priority || "normal");
+                  setEditWarranty(String(order.warrantyDays || 90));
+                  setIsEditing(true);
+                }}>
+                  Editar OS
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)}>Cancelar</Button>
+                  <Button size="sm" disabled={updateDetailsMutation.isPending} onClick={() => {
+                    updateDetailsMutation.mutate({
+                      id: order.id,
+                      defectReported: editDefect,
+                      diagnosis: editDiagnosis,
+                      priority: editPriority as any,
+                      warrantyDays: Number(editWarranty) || 90,
+                    });
+                  }}>Salvar Alterações</Button>
+                </div>
+              )}
             </div>
 
-            <div>
-              <p className="text-xs text-muted-foreground">Defeito Relatado</p>
-              <p className="text-sm mt-1 p-3 rounded-lg bg-muted/40 border">{order.defectReported}</p>
-            </div>
+            {isEditing ? (
+              <div className="space-y-4 pt-2 border-t">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-medium">Prioridade</label>
+                    <Select value={editPriority} onValueChange={setEditPriority}>
+                      <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">Baixa</SelectItem>
+                        <SelectItem value="normal">Normal</SelectItem>
+                        <SelectItem value="high">Alta</SelectItem>
+                        <SelectItem value="urgent">Urgente</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium">Garantia (Dias)</label>
+                    <input type="number" className="w-full mt-1 px-3 py-2 border rounded-md text-sm bg-background" value={editWarranty} onChange={e => setEditWarranty(e.target.value)} />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-medium">Defeito Relatado</label>
+                  <textarea className="w-full mt-1 p-3 border rounded-md text-sm bg-background" rows={3} value={editDefect} onChange={e => setEditDefect(e.target.value)} />
+                </div>
+                <div>
+                  <label className="text-xs font-medium">Laudo Técnico / Diagnóstico</label>
+                  <textarea className="w-full mt-1 p-3 border rounded-md text-sm bg-background" rows={3} placeholder="Descreva o laudo técnico..." value={editDiagnosis} onChange={e => setEditDiagnosis(e.target.value)} />
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Prioridade</p>
+                    <p className="font-medium uppercase text-sm mt-1">{order.priority}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Garantia</p>
+                    <p className="font-medium text-sm mt-1">{order.warrantyDays} dias</p>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-xs text-muted-foreground">Defeito Relatado</p>
+                  <p className="text-sm mt-1 p-3 rounded-lg bg-muted/40 border">{order.defectReported}</p>
+                </div>
+
+                {order.diagnosis && (
+                  <div>
+                    <p className="text-xs text-muted-foreground">Laudo Técnico / Diagnóstico</p>
+                    <p className="text-sm mt-1 p-3 rounded-lg bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900">{order.diagnosis}</p>
+                  </div>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
 

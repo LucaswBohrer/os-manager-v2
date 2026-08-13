@@ -142,12 +142,19 @@ export async function getServiceOrderById(id: number) {
 
 export async function createServiceOrder(data: any, author: string = "Usuário") {
   const db = readData();
+  const nextSeq = db.serviceOrders.length > 0 
+    ? Math.max(...db.serviceOrders.map((o: any) => o.sequentialNumber || 0)) + 1 
+    : 1;
+  const formattedSeq = String(nextSeq).padStart(5, '0');
+
   const newOrder = {
     id: Date.now(),
+    sequentialNumber: nextSeq,
+    displayNumber: formattedSeq,
     ...data,
     status: data.status || "opened",
     priority: data.priority || "normal",
-    timeline: [{ date: new Date().toISOString(), action: "OS Criada", description: `Ordem de serviço aberta por ${author}.` }],
+    timeline: [{ date: new Date().toISOString(), action: "OS Criada", description: `Ordem de serviço #${formattedSeq} aberta por ${author}.` }],
     createdAt: new Date().toISOString(),
   };
   db.serviceOrders.push(newOrder);

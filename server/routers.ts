@@ -158,6 +158,15 @@ export const appRouter = router({
         ctx.user.name ?? "Usuário",
         input.notes ?? "",
       )),
+    updateDetails: protectedProcedure
+      .input(z.object({
+        id: z.number().int().positive(),
+        defectReported: z.string().trim().min(3).max(10000).optional(),
+        diagnosis: z.string().trim().max(10000).optional(),
+        priority: prioritySchema.optional(),
+        warrantyDays: z.number().int().min(0).max(3650).optional(),
+      }))
+      .mutation(({ input }) => updateServiceOrderDetails(input.id, input)),
     history: protectedProcedure
       .input(z.object({ serviceOrderId: z.number().int().positive() }))
       .query(({ input }) => getServiceOrderHistory(input.serviceOrderId)),
