@@ -5,6 +5,7 @@ import Home from "@/pages/Home";
 import ClientsPage from "@/pages/ClientsPage";
 import EquipmentsPage from "@/pages/EquipmentsPage";
 import ServiceOrdersPage from "@/pages/ServiceOrdersPage";
+import OrderDetailPage from "@/pages/OrderDetailPage";
 import PartsPage from "@/pages/PartsPage";
 import ModulePlaceholder from "@/pages/ModulePlaceholder";
 import { Route, Switch } from "wouter";
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/clientes" component={ClientsPage} />
       <Route path="/equipamentos" component={EquipmentsPage} />
       <Route path="/ordens" component={ServiceOrdersPage} />
+      <Route path="/ordens/:id" component={OrderDetailPage} />
       <Route path="/estoque" component={PartsPage} />
       <Route path="/estoque"><ModulePlaceholder module="estoque" /></Route>
       <Route path="/configuracoes"><ModulePlaceholder module="configuracoes" /></Route>
