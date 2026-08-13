@@ -18,10 +18,7 @@ import {
   getServiceOrderHistory,
   getServiceOrderParts,
   getServiceOrders,
-  getServiceOrderById,
   updateServiceOrderStatus,
-  updateServiceOrderDetails,
-  updatePartStock,
 } from "./db";
 
 const statusSchema = z.enum([
@@ -128,12 +125,6 @@ export const appRouter = router({
         sellPrice: z.string().regex(/^\d+(\.\d{1,2})?$/).default("0.00"),
       }))
       .mutation(({ input }) => createPart(input)),
-    adjustStock: protectedProcedure
-      .input(z.object({
-        partId: z.number().int().positive(),
-        quantityChange: z.number().int(),
-      }))
-      .mutation(({ input, ctx }) => updatePartStock(input.partId, input.quantityChange, ctx.user.name ?? "Usuário")),
   }),
 
   serviceOrders: router({
@@ -181,27 +172,6 @@ export const appRouter = router({
         unitPrice: z.string().regex(/^\d+(\.\d{1,2})?$/),
       }))
       .mutation(({ input, ctx }) => addServiceOrderPart(input, ctx.user.name ?? "Usuário")),
-    getById: protectedProcedure
-      .input(z.object({ id: z.number().int().positive() }))
-      .query(({ input }) => getServiceOrderById(input.id)),
-    updateDetails: protectedProcedure
-      .input(z.object({
-        id: z.number().int().positive(),
-        diagnosis: z.string(),
-        laborCost: z.string().regex(/^\d+(\.\d{1,2})?$/),
-        partsCost: z.string().regex(/^\d+(\.\d{1,2})?$/),
-        discount: z.string().regex(/^\d+(\.\d{1,2})?$/),
-        totalAmount: z.string().regex(/^\d+(\.\d{1,2})?$/),
-      }))
-      .mutation(({ input, ctx }) => updateServiceOrderDetails(
-        input.id,
-        input.diagnosis,
-        input.laborCost,
-        input.partsCost,
-        input.discount,
-        input.totalAmount,
-        ctx.user.name ?? "Usuário"
-      )),
   }),
 });
 

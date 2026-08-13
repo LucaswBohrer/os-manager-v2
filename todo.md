@@ -11,14 +11,13 @@
 - [ ] **Fase 4: Frontend & UI (Dashboard Modular)**
   - [x] Desenvolver layout principal com navegação lateral (DashboardLayout)
   - [x] Criar telas de listagem e cadastro rápido de Clientes
-  - [x] Implementar ações completas de Equipamentos, Detalhes/Timeline de OS e Ajuste de Estoque
+  - [ ] Implementar ações completas de Equipamentos, Detalhes/Timeline de OS e Ajuste de Estoque
 - [ ] **Fase 5: Qualidade & Testes (Vitest)**
   - [x] Escrever e executar testes unitários e de integração com Vitest
-  - [x] Validar a execução no aplicativo desktop nativo (Electron / Windows)
+  - [ ] Validar a execução no aplicativo desktop nativo (Electron / Windows)
 - [ ] **Fase 6: Checkpoint & Publicação**
-  - [x] Gerar o executável Windows (.exe) e sincronizar o repositório com o GitHub
+  - [ ] Gerar o executável Windows (.exe) e sincronizar o repositório com o GitHub
 - [x] Publicar o commit local completo em `github.com/LuquinhasBohrer/os-manager-v2` e verificar a presença dos arquivos no remoto
 - [x] Corrigir e publicar o bootstrap Electron compatível com `type: module` para execução local no Windows
 - [x] Corrigir scripts `dev`/`start` para definir `NODE_ENV` de forma compatível com PowerShell e CMD
-- [x] Remover script de analytics externo do index.html para eliminar avisos desnecessários em ambiente local-first
-- [x] Implementar login local nativo (`admin` / `admin`) para operação offline e independente de OAuth externo
+- [ ] Validar a instalação e execução de `cross-env` e Electron no Windows após o `git pull`
