@@ -6,7 +6,7 @@
   "main": "electron.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development tsx watch server/_core/index.ts",
-    "desktop": "electron .",
+    "desktop": "npx electron .",
     "electron:install": "node node_modules/electron/install.js",
     "pack:win": "electron-builder --win",
     "build": "vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
@@ -16,7 +16,6 @@
     "test": "vitest run",
     "db:push": "drizzle-kit generate && drizzle-kit migrate"
   },
-
   "dependencies": {
     "cross-env": "^7.0.3",
     "@aws-sdk/client-s3": "^3.693.0",
@@ -85,7 +84,6 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
-
     "@tailwindcss/typography": "^0.5.15",
     "@tailwindcss/vite": "^4.1.3",
     "@types/express": "4.17.21",
@@ -109,28 +107,27 @@
     "vite-plugin-manus-runtime": "0.0.59",
     "vitest": "^2.1.4",
     "electron": "^33.2.1",
-    "electron-builder": "^25.1.8",
-    "cross-env": "^7.0.3"
+    "electron-builder": "^25.1.8"
   },
-      "build": {
-      "appId": "com.osmanager.desktop",
-      "productName": "OS Manager",
-      "directories": {
-        "output": "release"
-      },
-      "win": {
-        "target": ["nsis"],
-        "sign": null,
-        "verifyUpdateCodeSignature": false
-      },
-      "nsis": {
-        "oneClick": false,
-        "allowToChangeInstallationDirectory": true
-      },
-      "files": [
-        "dist/**/*",
-        "electron.js",
-        "package.json"
-      ]
-    }
+  "build": {
+    "appId": "com.osmanager.desktop",
+    "productName": "OS Manager",
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": ["nsis"],
+      "sign": null,
+      "verifyUpdateCodeSignature": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "files": [
+      "dist/**/*",
+      "electron.js",
+      "package.json"
+    ]
+  }
 }
