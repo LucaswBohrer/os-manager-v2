@@ -1,0 +1,9 @@
+packages:
+  - '.'
+
+minimumReleaseAge: 0
+
+onlyBuiltDependencies:
+  - electron
+  - esbuild
+  - 7zip-bin
