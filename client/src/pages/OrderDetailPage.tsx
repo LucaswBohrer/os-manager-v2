@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, Clock, Wrench, FileText, CheckCircle2, AlertTriangle, User, Monitor, DollarSign, PackageCheck, Layers, ClipboardCheck, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useRoute, Link } from "wouter";
 import { useState } from "react";
 
 export default function OrderDetailPage() {
@@ -116,26 +115,21 @@ export default function OrderDetailPage() {
     low: "Baixa",
     normal: "Normal",
     high: "Alta",
-    urgent: "Urgente",
+    urgent: "Urgente"
   };
 
-  const partsTotal = orderParts.reduce((acc, p: any) => acc + (Number(p.sellPrice || 0) * Number(p.quantity || 1)), 0);
-  const laborNum = Number(order.laborCost || laborCost || 0);
-  const discountNum = Number(order.discount || discount || 0);
-  const totalAmount = Math.max(0, partsTotal + laborNum - discountNum);
-
   return (
-    <div className="min-h-screen bg-muted/20 p-6 space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-card p-6 rounded-2xl border shadow-sm">
+    <div className="min-h-screen bg-muted/20 p-6 md:p-10 space-y-8 max-w-7xl mx-auto">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-background p-6 rounded-3xl border border-border/60 shadow-sm">
         <div className="flex items-center gap-4">
           <Link href="/ordens">
-            <Button variant="outline" size="icon" className="rounded-xl">
+            <Button variant="outline" size="icon" className="rounded-2xl">
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold tracking-tight">OS #{order.displayNumber || String(order.sequentialNumber || order.id).padStart(5, "0")}</h1>
+              <h1 className="text-2xl font-bold tracking-tight">OS #{order.displayNumber || String(order.sequentialNumber || order.id).padStart(5, '0')}</h1>
               {getStatusBadge(order.status)}
               <Badge variant="outline" className="font-medium text-xs">Prioridade: {priorityLabels[order.priority] || order.priority}</Badge>
             </div>
@@ -233,257 +227,218 @@ export default function OrderDetailPage() {
                       <label className="text-xs font-medium">Defeito Relatado</label>
                       <textarea className="w-full mt-1 p-3 border rounded-md text-sm bg-background" rows={3} value={editDefect} onChange={e => setEditDefect(e.target.value)} />
                     </div>
+                    <div>
+                      <label className="text-xs font-medium">Diagnóstico Inicial</label>
+                      <textarea className="w-full mt-1 p-3 border rounded-md text-sm bg-background" rows={3} value={editDiagnosis} onChange={e => setEditDiagnosis(e.target.value)} />
+                    </div>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-xs text-muted-foreground uppercase tracking-wider">Prioridade</p>
-                        <p className="font-semibold text-sm mt-1">{priorityLabels[order.priority] || order.priority}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground uppercase tracking-wider">Garantia</p>
-                        <p className="font-semibold text-sm mt-1">{order.warrantyDays || 90} dias</p>
-                      </div>
+                  <div className="space-y-4 text-sm">
+                    <div>
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Defeito Relatado</span>
+                      <p className="mt-1 font-medium bg-muted/40 p-3 rounded-xl border border-border/40">{order.defectReported || "Nenhum defeito informado."}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wider">Defeito Relatado pelo Cliente</p>
-                      <p className="text-sm mt-1 p-3.5 rounded-xl bg-muted/40 border">{order.defectReported}</p>
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Diagnóstico Inicial</span>
+                      <p className="mt-1 font-medium bg-muted/40 p-3 rounded-xl border border-border/40">{order.diagnosis || "Aguardando diagnóstico técnico."}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 pt-2">
+                      <div className="bg-muted/40 p-3 rounded-xl border border-border/40">
+                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Garantia</span>
+                        <p className="mt-1 font-semibold">{order.warrantyDays || 90} dias</p>
+                      </div>
+                      <div className="bg-muted/40 p-3 rounded-xl border border-border/40">
+                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Equipamento Vinculado</span>
+                        <p className="mt-1 font-semibold">{equipment ? `${equipment.type} - ${equipment.brand || ''} ${equipment.model || ''}` : "Equipamento Livre"}</p>
+                      </div>
                     </div>
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            <div className="space-y-6">
-              <Card className="border-border/60 shadow-sm rounded-2xl">
-                <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2"><User className="h-4 w-4 text-primary" /> Cliente Vinculado</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <p className="font-semibold">{client?.name || "Cliente não vinculado"}</p>
-                  <p className="text-muted-foreground">Telefone: {client?.phone || "Não informado"}</p>
-                  <p className="text-muted-foreground">CPF/CNPJ: {client?.document || "Não informado"}</p>
-                  <p className="text-muted-foreground">E-mail: {client?.email || "Não informado"}</p>
-                  <p className="text-muted-foreground">Endereço: {client?.address || "Não informado"}</p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-border/60 shadow-sm rounded-2xl">
-                <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2"><Monitor className="h-4 w-4 text-primary" /> Equipamento</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <p className="font-semibold">{equipment ? `${equipment.type} - ${equipment.brand || ""} ${equipment.model || ""}` : "Equipamento vinculado"}</p>
-                  <p className="text-muted-foreground">Número de Série: {equipment?.serialNumber || "N/D"}</p>
-                </CardContent>
-              </Card>
-            </div>
+            <Card className="border-border/60 shadow-sm rounded-2xl">
+              <CardHeader>
+                <CardTitle className="text-lg">Cliente</CardTitle>
+                <CardDescription>Dados de contato e cadastro</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <div>
+                  <span className="text-xs text-muted-foreground">Nome</span>
+                  <p className="font-semibold text-base">{client?.name || "Não informado"}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-muted-foreground">Telefone / WhatsApp</span>
+                  <p className="font-medium">{client?.phone || "Não informado"}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-muted-foreground">E-mail</span>
+                  <p className="font-medium">{client?.email || "Não informado"}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-muted-foreground">Endereço Completo</span>
+                  <p className="font-medium text-muted-foreground">{client?.address || "Não informado"}</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
 
-        <TabsContent value="diagnostico" className="space-y-6">
+        <TabsContent value="diagnostico">
           <Card className="border-border/60 shadow-sm rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-lg">Laudo Técnico e Diagnóstico</CardTitle>
-              <CardDescription>Registro detalhado da análise técnica realizada na bancada</CardDescription>
+              <CardTitle>Diagnóstico Técnico Avançado</CardTitle>
+              <CardDescription>Laudo, causa raiz, testes realizados e solução executada</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Laudo Técnico Atual</label>
-                <textarea 
-                  className="w-full mt-2 p-4 border rounded-xl text-sm bg-background min-h-[160px] outline-none focus:ring-2 focus:ring-primary/25" 
-                  placeholder="Descreva a causa raiz, testes efetuados e a solução aplicada..."
-                  value={editDiagnosis}
-                  onChange={e => setEditDiagnosis(e.target.value)}
-                  defaultValue={order.diagnosis || ""}
-                />
-              </div>
-              <div className="flex justify-end">
-                <Button 
-                  onClick={() => updateDetailsMutation.mutate({ id: order.id, diagnosis: editDiagnosis || order.diagnosis })}
-                  disabled={updateDetailsMutation.isPending}
-                >
-                  Salvar Diagnóstico
-                </Button>
+              <div className="p-4 bg-muted/40 rounded-2xl border border-border/40 space-y-2">
+                <h4 className="font-semibold text-sm">Laudo Atual</h4>
+                <p className="text-sm text-muted-foreground">{order.diagnosis || "Nenhum laudo registrado até o momento. Utilize o botão 'Editar Dados' na aba Resumo para atualizar o diagnóstico."}</p>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="orcamento" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="md:col-span-2 border-border/60 shadow-sm rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-lg">Composição do Orçamento</CardTitle>
-                <CardDescription>Valores de peças, mão de obra e descontos calculados pelo sistema</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground">Valor Mão de Obra (R$)</label>
-                    <input 
-                      type="number" 
-                      className="w-full mt-1 px-3 py-2 border rounded-xl text-sm bg-background" 
-                      value={order.laborCost || laborCost} 
-                      onChange={e => setLaborCost(e.target.value)} 
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground">Desconto Aplicado (R$)</label>
-                    <input 
-                      type="number" 
-                      className="w-full mt-1 px-3 py-2 border rounded-xl text-sm bg-background" 
-                      value={order.discount || discount} 
-                      onChange={e => setDiscount(e.target.value)} 
-                    />
-                  </div>
-                </div>
-                <div className="rounded-xl border bg-muted/30 p-4 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Subtotal Peças:</span>
-                    <span className="font-medium">R$ {partsTotal.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Mão de Obra:</span>
-                    <span className="font-medium">R$ {Number(order.laborCost || laborCost || 0).toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Desconto:</span>
-                    <span className="font-medium text-red-600">- R$ {Number(order.discount || discount || 0).toFixed(2)}</span>
-                  </div>
-                  <div className="border-t pt-2 flex justify-between text-base font-bold">
-                    <span>Total da OS:</span>
-                    <span className="text-primary text-xl">R$ {totalAmount.toFixed(2)}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border/60 shadow-sm rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-base">Aprovação do Orçamento</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 text-sm">
-                <p className="text-muted-foreground">O orçamento pode ser apresentado ao cliente via PDF ou no portal web.</p>
-                <Button className="w-full gap-2" variant="outline" onClick={() => toast.info("Geração de PDF de orçamento em breve na Evolução 6.")}>
-                  <FileText className="h-4 w-4" /> Gerar PDF Orçamento
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="servicos" className="space-y-6">
+        <TabsContent value="orcamento">
           <Card className="border-border/60 shadow-sm rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-lg">Serviços e Mão de Obra</CardTitle>
-              <CardDescription>Escopo de intervenções técnicas executadas ou previstas</CardDescription>
+              <CardTitle>Orçamento e Composição de Custos</CardTitle>
+              <CardDescription>Mão de obra, peças, descontos e total aprovado</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="p-4 bg-muted/40 rounded-2xl border border-border/40">
+                  <span className="text-xs text-muted-foreground">Custo de Peças</span>
+                  <p className="text-xl font-bold mt-1">R$ {Number(order.partsCost || 0).toFixed(2)}</p>
+                </div>
+                <div className="p-4 bg-muted/40 rounded-2xl border border-border/40">
+                  <span className="text-xs text-muted-foreground">Mão de Obra</span>
+                  <p className="text-xl font-bold mt-1">R$ {Number(order.laborCost || 0).toFixed(2)}</p>
+                </div>
+                <div className="p-4 bg-muted/40 rounded-2xl border border-border/40">
+                  <span className="text-xs text-muted-foreground">Desconto</span>
+                  <p className="text-xl font-bold mt-1 text-emerald-600">- R$ {Number(order.discount || 0).toFixed(2)}</p>
+                </div>
+                <div className="p-4 bg-primary/10 rounded-2xl border border-primary/20">
+                  <span className="text-xs font-primary font-semibold">Valor Total da OS</span>
+                  <p className="text-2xl font-extrabold text-primary mt-1">R$ {Number(order.totalAmount || 0).toFixed(2)}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="servicos">
+          <Card className="border-border/60 shadow-sm rounded-2xl">
+            <CardHeader>
+              <CardTitle>Serviços e Mão de Obra</CardTitle>
+              <CardDescription>Serviços técnicos prestados nesta ordem</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="rounded-xl border border-dashed p-8 text-center space-y-3">
-                <Layers className="mx-auto h-8 w-8 text-muted-foreground/60" />
-                <p className="font-medium">Nenhum serviço avulso lançado ainda</p>
-                <p className="text-sm text-muted-foreground">A mão de obra principal já está integrada no orçamento geral da OS.</p>
+              <div className="text-center py-10 text-muted-foreground">
+                <Wrench className="mx-auto h-10 w-10 opacity-40 mb-3" />
+                <p>Módulo de serviços vinculado à OS em andamento.</p>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="pecas" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="md:col-span-2 border-border/60 shadow-sm rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-lg">Peças Vinculadas à OS</CardTitle>
-                <CardDescription>Componentes aplicados no reparo e baixa automática no estoque</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {orderParts.length === 0 ? (
-                  <div className="rounded-xl border border-dashed p-8 text-center space-y-2">
-                    <PackageCheck className="mx-auto h-8 w-8 text-muted-foreground/60" />
-                    <p className="font-medium">Nenhuma peça vinculada a esta OS</p>
-                    <p className="text-sm text-muted-foreground">Utilize o painel ao lado para selecionar e adicionar peças do estoque.</p>
-                  </div>
-                ) : (
-                  <div className="divide-y rounded-xl border">
-                    {orderParts.map((p: any) => (
-                      <div key={p.id} className="flex items-center justify-between p-4">
-                        <div>
-                          <p className="font-semibold">Peça ID #{p.partId}</p>
-                          <p className="text-xs text-muted-foreground">Quantidade: {p.quantity} • Valor Unit.: R$ {p.sellPrice || "0.00"}</p>
-                        </div>
-                        <span className="font-bold text-primary">R$ {((Number(p.sellPrice || 0) * Number(p.quantity || 1))).toFixed(2)}</span>
-                      </div>
+          <Card className="border-border/60 shadow-sm rounded-2xl">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Peças Utilizadas nesta OS</CardTitle>
+                <CardDescription>Componentes vinculados com baixa automática no estoque local</CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex flex-col md:flex-row gap-3 items-end bg-muted/40 p-4 rounded-2xl border border-border/40">
+                <div className="flex-1 w-full">
+                  <label className="text-xs font-medium">Selecionar Peça do Estoque</label>
+                  <select className="w-full mt-1 px-3 py-2 border rounded-md text-sm bg-background" value={selectedPartId} onChange={e => setSelectedPartId(e.target.value)}>
+                    <option value="">Selecione uma peça...</option>
+                    {catalogParts.map((p: any) => (
+                      <option key={p.id} value={p.id}>{p.name} (Disponível: {p.stockQty} - R$ {p.sellPrice})</option>
                     ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card className="border-border/60 shadow-sm rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-base">Adicionar Peça do Estoque</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Selecionar Peça</label>
-                  <Select value={selectedPartId} onValueChange={setSelectedPartId}>
-                    <SelectTrigger className="mt-1"><SelectValue placeholder="Escolha uma peça..." /></SelectTrigger>
-                    <SelectContent>
-                      {catalogParts.map((part: any) => (
-                        <SelectItem key={part.id} value={String(part.id)}>
-                          {part.name} (Estoque: {part.stockQty}) - R$ {part.sellPrice}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  </select>
                 </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Quantidade</label>
-                  <input type="number" min="1" className="w-full mt-1 px-3 py-2 border rounded-xl text-sm bg-background" value={partQty} onChange={e => setPartQty(e.target.value)} />
+                <div className="w-32">
+                  <label className="text-xs font-medium">Quantidade</label>
+                  <input type="number" min="1" className="w-full mt-1 px-3 py-2 border rounded-md text-sm bg-background" value={partQty} onChange={e => setPartQty(e.target.value)} />
                 </div>
-                <Button 
-                  className="w-full gap-2" 
-                  disabled={!selectedPartId || addPartMutation.isPending}
-                  onClick={() => {
-                    const part = catalogParts.find((p: any) => String(p.id) === selectedPartId);
-                    if (!part) return;
-                    addPartMutation.mutate({
-                      serviceOrderId: order.id,
-                      partId: Number(selectedPartId),
-                      quantity: Number(partQty) || 1,
-                      sellPrice: part.sellPrice || "0.00",
-                    });
-                  }}
-                >
-                  <Plus className="h-4 w-4" /> Adicionar e Reservar Peça
+                <Button disabled={!selectedPartId || addPartMutation.isPending} onClick={() => {
+                  if (!selectedPartId) return;
+                  addPartMutation.mutate({
+                    serviceOrderId: order.id,
+                    partId: Number(selectedPartId),
+                    quantity: Number(partQty) || 1,
+                    unitPrice: "0.00"
+                  });
+                }}>
+                  <Plus className="h-4 w-4 mr-2" /> Adicionar Peça
                 </Button>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+
+              <div className="rounded-xl border border-border/40 overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50 border-b border-border/40 text-left">
+                    <tr>
+                      <th className="p-3 font-semibold">Peça / Componente</th>
+                      <th className="p-3 font-semibold">Quantidade</th>
+                      <th className="p-3 font-semibold">Preço Unitário</th>
+                      <th className="p-3 font-semibold text-right">Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orderParts.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="p-6 text-center text-muted-foreground">Nenhuma peça vinculada a esta OS.</td>
+                      </tr>
+                    ) : (
+                      orderParts.map((op: any) => {
+                        const partObj = catalogParts.find((p: any) => p.id === op.partId);
+                        const qty = op.quantity || 1;
+                        const price = Number(op.unitPrice || partObj?.sellPrice || 0);
+                        return (
+                          <tr key={op.id} className="border-b border-border/40">
+                            <td className="p-3 font-medium">{partObj?.name || `Peça #${op.partId}`}</td>
+                            <td className="p-3">{qty}</td>
+                            <td className="p-3">R$ {price.toFixed(2)}</td>
+                            <td className="p-3 text-right font-semibold">R$ {(qty * price).toFixed(2)}</td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        <TabsContent value="timeline" className="space-y-6">
+        <TabsContent value="timeline">
           <Card className="border-border/60 shadow-sm rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2"><Clock className="h-5 w-5 text-primary" /> Histórico Completo de Auditoria</CardTitle>
-              <CardDescription>Linha do tempo oficial com todas as ações e alterações da ordem de serviço</CardDescription>
+              <CardTitle>Histórico e Timeline de Auditoria</CardTitle>
+              <CardDescription>Registro completo de todas as alterações e movimentações da OS</CardDescription>
             </CardHeader>
             <CardContent>
-              {history.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-6 text-center">Nenhum evento registrado no histórico.</p>
-              ) : (
-                <div className="space-y-4 border-l-2 border-primary/20 pl-4 ml-2">
-                  {history.map((h: any, idx: number) => (
-                    <div key={idx} className="space-y-1 relative">
-                      <div className="absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full bg-primary" />
-                      <p className="text-sm font-semibold text-foreground">{h.action || "Atualização"}</p>
+              <div className="space-y-4 pl-4 border-l-2 border-primary/30 my-2">
+                {history.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Nenhum evento registrado.</p>
+                ) : (
+                  history.map((h: any, i: number) => (
+                    <div key={i} className="relative pl-6 space-y-1">
+                      <div className="absolute -left-[31px] top-1 h-3 w-3 rounded-full bg-primary border-4 border-background" />
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-sm">{h.action}</span>
+                        <span className="text-xs text-muted-foreground">{new Date(h.date).toLocaleString('pt-BR')}</span>
+                      </div>
                       <p className="text-sm text-muted-foreground">{h.description}</p>
-                      <p className="text-xs text-muted-foreground/80">{new Date(h.date || h.createdAt).toLocaleString('pt-BR')}</p>
                     </div>
-                  ))}
-                </div>
-              )}
+                  ))
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
