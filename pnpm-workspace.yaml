@@ -2,7 +2,6 @@ packages:
   - '.'
 
 minimumReleaseAge: 0
-
 onlyBuiltDependencies:
   - electron
   - esbuild
