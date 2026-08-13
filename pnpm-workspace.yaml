@@ -3,7 +3,7 @@ packages:
 
 minimumReleaseAge: 0
 
-allowBuilds:
-  electron: true
-  esbuild: true
-  7zip-bin: true
+onlyBuiltDependencies:
+  - electron
+  - esbuild
+  - 7zip-bin
