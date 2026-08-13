@@ -89,8 +89,11 @@ export async function createClient(data: any) {
 }
 
 // Equipamentos
-export async function getEquipments() {
+export async function getEquipments(clientId?: number) {
   const db = readData();
+  if (clientId) {
+    return db.equipments.filter((e: any) => e.clientId === clientId);
+  }
   return db.equipments;
 }
 
@@ -137,19 +140,31 @@ export async function getServiceOrderById(id: number) {
   return db.serviceOrders.find((o: any) => o.id === id) || null;
 }
 
-export async function createServiceOrder(data: any) {
+export async function createServiceOrder(data: any, author: string = "Usuário") {
   const db = readData();
   const newOrder = {
     id: Date.now(),
     ...data,
-    status: data.status || "Pendente",
-    priority: data.priority || "Normal",
-    timeline: [{ date: new Date().toISOString(), action: "OS Criada", description: "Ordem de serviço aberta no sistema local." }],
+    status: data.status || "opened",
+    priority: data.priority || "normal",
+    timeline: [{ date: new Date().toISOString(), action: "OS Criada", description: `Ordem de serviço aberta por ${author}.` }],
     createdAt: new Date().toISOString(),
   };
   db.serviceOrders.push(newOrder);
   writeData(db);
   return newOrder;
+}
+
+export async function updateServiceOrderStatus(id: number, status: string, author: string, notes: string = "") {
+  const db = readData();
+  const order = db.serviceOrders.find((o: any) => o.id === id);
+  if (order) {
+    order.status = status;
+    if (!order.timeline) order.timeline = [];
+    order.timeline.push({ date: new Date().toISOString(), action: "Status Alterado", description: `Status alterado para ${status} por ${author}. ${notes}` });
+    writeData(db);
+  }
+  return order;
 }
 
 export async function updateServiceOrderDetails(id: number, data: any) {
@@ -158,8 +173,33 @@ export async function updateServiceOrderDetails(id: number, data: any) {
   if (order) {
     Object.assign(order, data);
     if (!order.timeline) order.timeline = [];
-    order.timeline.push({ date: new Date().toISOString(), action: "Atualização de OS", description: `Status alterado para: ${data.status || order.status}` });
+    order.timeline.push({ date: new Date().toISOString(), action: "Atualização de OS", description: `Detalhes atualizados.` });
     writeData(db);
   }
   return order;
+}
+
+export async function getServiceOrderHistory(serviceOrderId: number) {
+  const db = readData();
+  const order = db.serviceOrders.find((o: any) => o.id === serviceOrderId);
+  return order ? order.timeline || [] : [];
+}
+
+export async function getServiceOrderParts(serviceOrderId: number) {
+  const db = readData();
+  return (db.serviceOrderParts || []).filter((p: any) => p.serviceOrderId === serviceOrderId);
+}
+
+export async function addServiceOrderPart(input: any, author: string) {
+  const db = readData();
+  if (!db.serviceOrderParts) db.serviceOrderParts = [];
+  const item = { id: Date.now(), ...input, createdAt: new Date().toISOString() };
+  db.serviceOrderParts.push(item);
+  const order = db.serviceOrders.find((o: any) => o.id === input.serviceOrderId);
+  if (order) {
+    if (!order.timeline) order.timeline = [];
+    order.timeline.push({ date: new Date().toISOString(), action: "Peça Adicionada", description: `Peça adicionada por ${author}.` });
+  }
+  writeData(db);
+  return item;
 }

@@ -16,14 +16,9 @@
     "test": "vitest run",
     "db:push": "drizzle-kit generate && drizzle-kit migrate"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "electron",
-      "esbuild",
-      "7zip-bin"
-    ]
-  },
+
   "dependencies": {
+    "cross-env": "^7.0.3",
     "@aws-sdk/client-s3": "^3.693.0",
     "@aws-sdk/s3-request-presigner": "^3.693.0",
     "@hookform/resolvers": "^5.2.2",
