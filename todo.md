@@ -2,7 +2,7 @@
 
 - [x] Infraestrutura base, login local, persistência JSON e Electron
 - [x] Roteamento principal e eliminação do erro 404 inicial
-- [ ] **Evolução 1: Aprimorar a Criação de OS** (Busca robusta de clientes, cadastro inline completo, dados de equipamento livres, condições de entrada, prioridades e garantia)
+- [x] **Evolução 1: Aprimorar a Criação de OS** (Busca robusta de clientes, cadastro inline completo, dados de equipamento livres, condições de entrada, prioridades e garantia)
 - [ ] **Evolução 2: Tela Profissional da OS** (Abas de resumo, diagnóstico, orçamento, serviços, peças, estoque e timeline)
 - [ ] **Evolução 3: Diagnóstico Técnico** (Laudo, causa, testes e solução executada)
 - [ ] **Evolução 4: Serviços, Mão de Obra e Orçamento Integrado** (Cálculo de margem, custo, lucro, aprovação e status)
