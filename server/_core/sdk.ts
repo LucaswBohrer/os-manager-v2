@@ -154,7 +154,7 @@ class SDKServer {
   }
 
   private getSessionSecret() {
-    const secret = ENV.cookieSecret;
+    const secret = ENV.cookieSecret || "os-manager-local-default-fallback-secret-key-2026";
     return new TextEncoder().encode(secret);
   }
 
