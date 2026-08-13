@@ -49,6 +49,8 @@ export default function ServiceOrdersPage() {
   const [newClientName, setNewClientName] = useState("");
   const [newClientPhone, setNewClientPhone] = useState("");
   const [newClientDoc, setNewClientDoc] = useState("");
+  const [newClientEmail, setNewClientEmail] = useState("");
+  const [newClientAddress, setNewClientAddress] = useState("");
   const [clientSearchQuery, setClientSearchQuery] = useState("");
 
   const createClientMutation = trpc.clients.create.useMutation({
@@ -59,6 +61,8 @@ export default function ServiceOrdersPage() {
       setNewClientName("");
       setNewClientPhone("");
       setNewClientDoc("");
+      setNewClientEmail("");
+      setNewClientAddress("");
       clientsQuery.refetch();
     },
     onError: (err) => {
@@ -155,17 +159,25 @@ export default function ServiceOrdersPage() {
                     </div>
                     {showNewClient ? (
                       <div className="space-y-3 rounded-xl border p-3 bg-muted/30">
-                        <Input placeholder="Nome completo *" value={newClientName} onChange={e => setNewClientName(e.target.value)} />
+                        <Input placeholder="Nome completo / Razão social *" value={newClientName} onChange={e => setNewClientName(e.target.value)} />
                         <div className="grid grid-cols-2 gap-2">
                           <Input placeholder="Telefone / WhatsApp" value={newClientPhone} onChange={e => setNewClientPhone(e.target.value)} />
                           <Input placeholder="CPF ou CNPJ" value={newClientDoc} onChange={e => setNewClientDoc(e.target.value)} />
                         </div>
+                        <Input placeholder="E-mail" type="email" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} />
+                        <Input placeholder="Endereço completo (Rua, nº, bairro, cidade - UF)" value={newClientAddress} onChange={e => setNewClientAddress(e.target.value)} />
                         <Button 
                           type="button" 
                           size="sm" 
                           className="w-full"
                           disabled={!newClientName.trim() || createClientMutation.isPending}
-                          onClick={() => createClientMutation.mutate({ name: newClientName, phone: newClientPhone, document: newClientDoc })}
+                          onClick={() => createClientMutation.mutate({ 
+                            name: newClientName, 
+                            phone: newClientPhone, 
+                            document: newClientDoc, 
+                            email: newClientEmail || undefined, 
+                            address: newClientAddress || undefined 
+                          })}
                         >
                           Salvar e Selecionar Cliente
                         </Button>
