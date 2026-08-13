@@ -96,7 +96,7 @@ export default function OrderDetailPage() {
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold tracking-tight">Ordem de Serviço #{order.displayNumber || String(order.id).slice(-5)}</h1>
+              <h1 className="text-2xl font-bold tracking-tight">Ordem de Serviço #{order.displayNumber || String(order.sequentialNumber || order.id).padStart(5, "0")}</h1>
               <Badge variant="outline" className="font-mono">ID: {order.id}</Badge>
             </div>
             <p className="text-sm text-muted-foreground">Aberta em {new Date(order.createdAt).toLocaleDateString('pt-BR')}</p>

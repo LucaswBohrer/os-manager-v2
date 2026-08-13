@@ -14,7 +14,9 @@
 - [ ] **Evolução 10: Dashboard Gerencial e Backup Completo**
 - [ ] **Evolução 11: Portal do Cliente e Integrações Opcionais** (WhatsApp, E-mail, Pagamentos online)
 
-- [ ] **Correção Crítica 1: Numeração Sequencial de OS** (Garantir formato 00001, 00002... sem IDs em milissegundos)
-- [ ] **Correção Crítica 2: Busca e Seleção de Clientes** (Remover seletor redundante e implementar busca instantânea com resultados clicáveis)
-- [ ] **Correção Crítica 3: Métricas do Dashboard** (Sincronizar contadores da tela inicial com os registros reais)
-- [ ] **Validação E2E com o Usuário** (Testar ciclo completo e confirmar visualização correta)
+- [x] **Correção Crítica 1: Numeração Sequencial de OS** (Garantir formato 00001, 00002... sem IDs em milissegundos)
+- [x] **Correção Crítica 2: Busca e Seleção de Clientes** (Remover seletor redundante e implementar busca instantânea com resultados clicáveis)
+- [x] **Correção Crítica 3: Métricas do Dashboard** (Sincronizar contadores da tela inicial com os registros reais)
+- [x] **Validação E2E com o Usuário** (Testar ciclo completo e confirmar visualização correta)
+- [x] **Ajuste de Retaguarda 1: Backfill de Numeração** (Garantir que todas as OS antigas recebam displayNumber e sequencial correto ao carregar)
+- [ ] **Ajuste de Retaguarda 2: Correção de Linter/TypeScript** (Garantir compilação limpa sem erros em routers.ts e index.ts)

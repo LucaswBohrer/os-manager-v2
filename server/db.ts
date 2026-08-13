@@ -132,6 +132,18 @@ export async function updatePartStock(partId: number, quantityChange: number) {
 // Ordens de Serviço
 export async function getServiceOrders() {
   const db = readData();
+  let changed = false;
+  (db.serviceOrders || []).forEach((o: any, idx: number) => {
+    if (!o.sequentialNumber || !o.displayNumber) {
+      const seq = o.sequentialNumber || (idx + 1);
+      o.sequentialNumber = seq;
+      o.displayNumber = o.displayNumber || String(seq).padStart(5, '0');
+      changed = true;
+    }
+  });
+  if (changed) {
+    writeData(db);
+  }
   return db.serviceOrders;
 }
 
