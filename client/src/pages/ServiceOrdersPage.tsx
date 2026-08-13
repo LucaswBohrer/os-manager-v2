@@ -157,61 +157,111 @@ export default function ServiceOrdersPage() {
                         {showNewClient ? "Selecionar existente" : "+ Novo Cliente"}
                       </Button>
                     </div>
-                    {showNewClient ? (
-                      <div className="space-y-3 rounded-xl border p-3 bg-muted/30">
-                        <Input placeholder="Nome completo / Razão social *" value={newClientName} onChange={e => setNewClientName(e.target.value)} />
-                        <div className="grid grid-cols-2 gap-2">
-                          <Input placeholder="Telefone / WhatsApp" value={newClientPhone} onChange={e => setNewClientPhone(e.target.value)} />
-                          <Input placeholder="CPF ou CNPJ" value={newClientDoc} onChange={e => setNewClientDoc(e.target.value)} />
+                    {clientId ? (
+                      <div className="flex items-center justify-between rounded-xl border border-primary/30 bg-primary/5 p-3">
+                        <div>
+                          <p className="text-xs font-medium text-primary uppercase tracking-wider">Cliente Selecionado:</p>
+                          <p className="text-sm font-semibold text-foreground">
+                            {clients.find(c => String(c.id) === clientId)?.name} ({clients.find(c => String(c.id) === clientId)?.phone || "Sem tel"})
+                          </p>
                         </div>
-                        <Input placeholder="E-mail" type="email" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} />
-                        <Input placeholder="Endereço completo (Rua, nº, bairro, cidade - UF)" value={newClientAddress} onChange={e => setNewClientAddress(e.target.value)} />
-                        <Button 
-                          type="button" 
-                          size="sm" 
-                          className="w-full"
-                          disabled={!newClientName.trim() || createClientMutation.isPending}
-                          onClick={() => createClientMutation.mutate({ 
-                            name: newClientName, 
-                            phone: newClientPhone, 
-                            document: newClientDoc, 
-                            email: newClientEmail || undefined, 
-                            address: newClientAddress || undefined 
-                          })}
-                        >
-                          Salvar e Selecionar Cliente
+                        <Button type="button" variant="ghost" size="sm" onClick={() => setClientId("")}>
+                          Alterar
                         </Button>
                       </div>
                     ) : (
-                      <div className="space-y-2">
-                        <div className="relative">
-                          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                          <input
-                            className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/20"
-                            placeholder="Pesquisar cliente por nome, tel, CPF ou e-mail..."
-                            value={clientSearchQuery}
-                            onChange={e => setClientSearchQuery(e.target.value)}
-                          />
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <Label>Buscar ou Cadastrar Cliente</Label>
+                          <Button type="button" variant="link" className="h-auto p-0 text-xs font-semibold" onClick={() => setShowNewClient(!showNewClient)}>
+                            {showNewClient ? "Pesquisar cliente existente" : "+ Novo Cliente Completo"}
+                          </Button>
                         </div>
-                        <Select value={clientId} onValueChange={setClientId}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione o cliente na lista..." />
-                          </SelectTrigger>
-                          <SelectContent className="max-h-60">
-                            {clients
-                              .filter(c => 
-                                c.name.toLowerCase().includes(clientSearchQuery.toLowerCase()) ||
-                                (c.phone && c.phone.includes(clientSearchQuery)) ||
-                                (c.document && c.document.includes(clientSearchQuery)) ||
-                                (c.email && c.email.toLowerCase().includes(clientSearchQuery.toLowerCase()))
-                              )
-                              .map(c => (
-                                <SelectItem key={c.id} value={String(c.id)}>
-                                  {c.name} {c.phone ? `(${c.phone})` : ""} {c.email ? `- ${c.email}` : ""}
-                                </SelectItem>
-                              ))}
-                          </SelectContent>
-                        </Select>
+
+                        {showNewClient ? (
+                          <div className="space-y-3 rounded-xl border p-4 bg-muted/30">
+                            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Cadastrar Novo Cliente</h4>
+                            <Input placeholder="Nome completo / Razão social *" value={newClientName} onChange={e => setNewClientName(e.target.value)} />
+                            <div className="grid grid-cols-2 gap-2">
+                              <Input placeholder="Telefone / WhatsApp *" value={newClientPhone} onChange={e => setNewClientPhone(e.target.value)} />
+                              <Input placeholder="CPF ou CNPJ" value={newClientDoc} onChange={e => setNewClientDoc(e.target.value)} />
+                            </div>
+                            <Input placeholder="E-mail principal" type="email" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} />
+                            <Input placeholder="Endereço completo (Rua, nº, bairro, cidade - UF)" value={newClientAddress} onChange={e => setNewClientAddress(e.target.value)} />
+                            <Button 
+                              type="button" 
+                              size="sm" 
+                              className="w-full font-medium"
+                              disabled={!newClientName.trim() || !newClientPhone.trim() || createClientMutation.isPending}
+                              onClick={() => createClientMutation.mutate({ 
+                                name: newClientName, 
+                                phone: newClientPhone, 
+                                document: newClientDoc, 
+                                email: newClientEmail || undefined, 
+                                address: newClientAddress || undefined 
+                              })}
+                            >
+                              Salvar e Selecionar Cliente
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <div className="relative">
+                              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                              <input
+                                className="w-full rounded-xl border border-border bg-background py-2.5 pl-9 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                                placeholder="Digite nome, telefone, CPF ou e-mail..."
+                                value={clientSearchQuery}
+                                onChange={e => setClientSearchQuery(e.target.value)}
+                              />
+                            </div>
+                            {clientSearchQuery.trim() && (
+                              <div className="max-h-52 overflow-y-auto rounded-xl border divide-y bg-background shadow-sm">
+                                {clients
+                                  .filter(c => 
+                                    c.name.toLowerCase().includes(clientSearchQuery.toLowerCase()) ||
+                                    (c.phone && c.phone.includes(clientSearchQuery)) ||
+                                    (c.document && c.document.includes(clientSearchQuery)) ||
+                                    (c.email && c.email.toLowerCase().includes(clientSearchQuery.toLowerCase()))
+                                  )
+                                  .length === 0 ? (
+                                    <div className="p-4 text-center text-sm text-muted-foreground space-y-2">
+                                      <p>Nenhum cliente encontrado com "{clientSearchQuery}".</p>
+                                      <Button type="button" size="sm" variant="outline" onClick={() => { setNewClientName(clientSearchQuery); setShowNewClient(true); }}>
+                                        + Cadastrar "{clientSearchQuery}" como novo cliente
+                                      </Button>
+                                    </div>
+                                  ) : (
+                                    clients
+                                      .filter(c => 
+                                        c.name.toLowerCase().includes(clientSearchQuery.toLowerCase()) ||
+                                        (c.phone && c.phone.includes(clientSearchQuery)) ||
+                                        (c.document && c.document.includes(clientSearchQuery)) ||
+                                        (c.email && c.email.toLowerCase().includes(clientSearchQuery.toLowerCase()))
+                                      )
+                                      .map(c => (
+                                        <div 
+                                          key={c.id}
+                                          className="flex items-center justify-between p-3 hover:bg-muted/50 cursor-pointer transition-colors text-sm"
+                                          onClick={() => {
+                                            setClientId(String(c.id));
+                                            setClientSearchQuery("");
+                                          }}
+                                        >
+                                          <div>
+                                            <p className="font-semibold text-foreground">{c.name}</p>
+                                            <p className="text-xs text-muted-foreground">{c.phone || "Sem tel"} {c.document ? `• ${c.document}` : ""} {c.email ? `• ${c.email}` : ""}</p>
+                                          </div>
+                                          <Button type="button" variant="secondary" size="sm" className="h-7 text-xs">
+                                            Selecionar
+                                          </Button>
+                                        </div>
+                                      ))
+                                  )}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

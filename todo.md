@@ -1,30 +1,15 @@
-# OS Manager — Todo List & Roadmap Incremental
+# OS Manager - Roadmap de Evolução Comercial
 
-- [x] Inicializar o projeto e configurar o repositório privado no GitHub (`os-manager-v2`) com README profissional
-- [x] **Fase 2: Modelo de Dados & Domínio (Drizzle Schema)**
-  - [x] Definir entidades base: Clientes, Equipamentos, Ordens de Serviço (OS), Status/Prioridades, Estoque/Peças, Orçamentos e Garantias
-  - [x] Configurar relacionamentos e chaves estrangeiras com integridade referencial
-- [x] **Fase 3: Backend & Camada de Serviços (tRPC)**
-  - [x] Implementar rotas tRPC para Clientes e Equipamentos
-  - [x] Implementar motor de Ordens de Serviço com timeline/histórico de alterações
-  - [x] Configurar controle de acesso e auditoria local
-- [ ] **Fase 4: Frontend & UI (Dashboard Modular)**
-  - [x] Desenvolver layout principal com navegação lateral (DashboardLayout)
-  - [x] Criar telas de listagem e cadastro rápido de Clientes
-  - [ ] Implementar ações completas de Equipamentos, Detalhes/Timeline de OS e Ajuste de Estoque
-- [ ] **Fase 5: Qualidade & Testes (Vitest)**
-  - [x] Escrever e executar testes unitários e de integração com Vitest
-  - [ ] Validar a execução no aplicativo desktop nativo (Electron / Windows)
-- [ ] **Fase 6: Checkpoint & Publicação**
-  - [ ] Gerar o executável Windows (.exe) e sincronizar o repositório com o GitHub
-- [x] Publicar o commit local completo em `github.com/LuquinhasBohrer/os-manager-v2` e verificar a presença dos arquivos no remoto
-- [x] Corrigir e publicar o bootstrap Electron compatível com `type: module` para execução local no Windows
-- [x] Corrigir scripts `dev`/`start` para definir `NODE_ENV` de forma compatível com PowerShell e CMD
-- [ ] Validar a instalação e execução de `cross-env` e Electron no Windows após o `git pull`
-
-- [x] Fechar e validar o login local offline (admin / admin)
-- [ ] Executar auditoria técnica e funcional da versão atual
-- [ ] Corrigir o erro 404 / rota de criação de Ordem de Serviço
-- [ ] Implementar o fluxo completo de criação de OS (Cliente, Equipamento, Defeito, Prioridade, Garantia)
-- [ ] Testar persistência, edição e timeline de OS no banco local JSON
-- [ ] Sincronizar o checkpoint final com o repositório GitHub
+- [x] Infraestrutura base, login local, persistência JSON e Electron
+- [x] Roteamento principal e eliminação do erro 404 inicial
+- [ ] **Evolução 1: Aprimorar a Criação de OS** (Busca robusta de clientes, cadastro inline completo, dados de equipamento livres, condições de entrada, prioridades e garantia)
+- [ ] **Evolução 2: Tela Profissional da OS** (Abas de resumo, diagnóstico, orçamento, serviços, peças, estoque e timeline)
+- [ ] **Evolução 3: Diagnóstico Técnico** (Laudo, causa, testes e solução executada)
+- [ ] **Evolução 4: Serviços, Mão de Obra e Orçamento Integrado** (Cálculo de margem, custo, lucro, aprovação e status)
+- [ ] **Evolução 5: Controle de Estoque Vinculado** (Reserva, baixa automática e movimentação)
+- [ ] **Evolução 6: Geração de PDFs Profissionais** (Entrada, Orçamento e Saída/Termo de Garantia)
+- [ ] **Evolução 7: Configurações de Empresa e Termos Personalizáveis**
+- [ ] **Evolução 8: Sistema Completo de Garantia** (Vínculo com OS original e análise)
+- [ ] **Evolução 9: Módulo Financeiro** (Pagamentos parciais/totais, formas de pagamento e estorno)
+- [ ] **Evolução 10: Dashboard Gerencial e Backup Completo**
+- [ ] **Evolução 11: Portal do Cliente e Integrações Opcionais** (WhatsApp, E-mail, Pagamentos online)
