@@ -36,7 +36,10 @@ export default function OrderDetailPage() {
     onSuccess: () => {
       toast.success("Status atualizado com sucesso!");
       utils.serviceOrders.list.invalidate();
+      utils.dashboard.metrics.invalidate();
+      utils.dashboard.recentOrders.invalidate();
       historyQuery.refetch();
+      ordersQuery.refetch();
     },
     onError: (err) => {
       toast.error(`Erro ao atualizar status: ${err.message}`);
@@ -143,7 +146,7 @@ export default function OrderDetailPage() {
 
         <div className="flex items-center gap-3">
           <span className="text-sm font-medium text-muted-foreground">Alterar Status:</span>
-          <Select defaultValue={order.status} onValueChange={(val) => updateStatusMutation.mutate({ id: order.id, status: val as any })}>
+          <Select value={order.status} onValueChange={(val) => updateStatusMutation.mutate({ id: order.id, status: val as any })}>
             <SelectTrigger className="w-[190px] rounded-xl font-medium">
               <SelectValue placeholder="Selecione..." />
             </SelectTrigger>
