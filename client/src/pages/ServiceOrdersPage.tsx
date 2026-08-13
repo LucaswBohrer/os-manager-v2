@@ -34,23 +34,21 @@ export default function ServiceOrdersPage() {
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [clientId, setClientId] = useState<string>("");
-  const [equipmentId, setEquipmentId] = useState<string>("");
   const [defectReported, setDefectReported] = useState("");
   const [priority, setPriority] = useState<string>("normal");
   const [warrantyDays, setWarrantyDays] = useState<string>("90");
+
+  // Campos de texto livre exigidos pelo roadmap / usuário
+  const [equipType, setEquipType] = useState("");
+  const [equipBrand, setEquipBrand] = useState("");
+  const [equipModel, setEquipModel] = useState("");
+  const [equipSerial, setEquipSerial] = useState("");
 
   // Novo cliente inline state
   const [showNewClient, setShowNewClient] = useState(false);
   const [newClientName, setNewClientName] = useState("");
   const [newClientPhone, setNewClientPhone] = useState("");
   const [newClientDoc, setNewClientDoc] = useState("");
-
-  // Novo equipamento inline state (caso queira cadastrar na hora)
-  const [showNewEquip, setShowNewEquip] = useState(false);
-  const [newEquipType, setNewEquipType] = useState("Notebook");
-  const [newEquipBrand, setNewEquipBrand] = useState("");
-  const [newEquipModel, setNewEquipModel] = useState("");
-  const [newEquipSerial, setNewEquipSerial] = useState("");
 
   const createClientMutation = trpc.clients.create.useMutation({
     onSuccess: (client) => {
@@ -67,35 +65,32 @@ export default function ServiceOrdersPage() {
     }
   });
 
-  const createEquipMutation = trpc.equipments.create.useMutation({
-    onSuccess: (equip) => {
-      toast.success(`Equipamento cadastrado e vinculado!`);
-      setEquipmentId(String(equip.id));
-      setShowNewEquip(false);
-      setNewEquipType("Notebook");
-      setNewEquipBrand("");
-      setNewEquipModel("");
-      setNewEquipSerial("");
-      equipmentsQuery.refetch();
-    },
-    onError: (err) => {
-      toast.error(`Erro ao cadastrar equipamento: ${err.message}`);
-    }
-  });
-
   const utils = trpc.useUtils();
   const clientsQuery = trpc.clients.list.useQuery();
-  const equipmentsQuery = trpc.equipments.list.useQuery(
-    clientId ? { clientId: Number(clientId) } : undefined
-  );
   const ordersQuery = trpc.serviceOrders.list.useQuery();
 
+  // Mutation auxiliar para criar o equipamento inline ao submeter a OS
+  const createEquipAndOrder = async () => {
+    try {
+      // 1. Cadastra o equipamento com os campos livres informados
+      const equip = await trpc.equipments.create.query({ // ou mutate async
+        // como é tRPC mutation no cliente:
+      });
+    } catch(e) {}
+  };
+
+  // Usaremos uma mutation combinada ou criamos o equipamento antes de criar a OS
+  const createEquipMutation = trpc.equipments.create.useMutation();
+  
   const createOrderMutation = trpc.serviceOrders.create.useMutation({
     onSuccess: (id) => {
       toast.success(`Ordem de Serviço #${id} criada com sucesso!`);
       setIsOpen(false);
       setClientId("");
-      setEquipmentId("");
+      setEquipType("");
+      setEquipBrand("");
+      setEquipModel("");
+      setEquipSerial("");
       setDefectReported("");
       setPriority("normal");
       setWarrantyDays("90");
@@ -109,7 +104,6 @@ export default function ServiceOrdersPage() {
   });
 
   const clients = clientsQuery.data ?? [];
-  const equipments = equipmentsQuery.data ?? [];
   const orders = ordersQuery.data ?? [];
 
   const clientMap = new Map(clients.map(c => [c.id, c.name]));
@@ -189,45 +183,28 @@ export default function ServiceOrdersPage() {
                     )}
                   </div>
 
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="equipment">Equipamento *</Label>
-                      <Button type="button" variant="link" className="h-auto p-0 text-xs" disabled={!clientId} onClick={() => setShowNewEquip(!showNewEquip)}>
-                        {showNewEquip ? "Selecionar existente" : "+ Novo Equipamento"}
-                      </Button>
-                    </div>
-                    {showNewEquip ? (
-                      <div className="space-y-3 rounded-xl border p-3 bg-muted/30">
-                        <div className="grid grid-cols-2 gap-2">
-                          <Input placeholder="Tipo (ex: Notebook, TV)" value={newEquipType} onChange={e => setNewEquipType(e.target.value)} />
-                          <Input placeholder="Marca (ex: Dell, LG)" value={newEquipBrand} onChange={e => setNewEquipBrand(e.target.value)} />
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          <Input placeholder="Modelo" value={newEquipModel} onChange={e => setNewEquipModel(e.target.value)} />
-                          <Input placeholder="Número de Série" value={newEquipSerial} onChange={e => setNewEquipSerial(e.target.value)} />
-                        </div>
-                        <Button 
-                          type="button" 
-                          size="sm" 
-                          className="w-full"
-                          disabled={!clientId || !newEquipType.trim() || createEquipMutation.isPending}
-                          onClick={() => createEquipMutation.mutate({ clientId: Number(clientId), type: newEquipType, brand: newEquipBrand, model: newEquipModel, serialNumber: newEquipSerial })}
-                        >
-                          Cadastrar e Selecionar Equipamento
-                        </Button>
+                  <div className="space-y-3 rounded-xl border p-4 bg-muted/20">
+                    <h3 className="text-sm font-medium leading-none">Dados do Equipamento</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-xs">Equipamento *</Label>
+                        <Input placeholder="Ex: Notebook, Placa, TV" value={equipType} onChange={e => setEquipType(e.target.value)} />
                       </div>
-                    ) : (
-                      <Select value={equipmentId} onValueChange={setEquipmentId} disabled={!clientId}>
-                        <SelectTrigger>
-                          <SelectValue placeholder={clientId ? "Selecione o equipamento..." : "Primeiro selecione o cliente"} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {equipments.map(eq => (
-                            <SelectItem key={eq.id} value={String(eq.id)}>{eq.type} {eq.brand} {eq.model} (S/N: {eq.serialNumber || "N/D"})</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
+                      <div className="space-y-1">
+                        <Label className="text-xs">Marca</Label>
+                        <Input placeholder="Ex: Dell, Samsung" value={equipBrand} onChange={e => setEquipBrand(e.target.value)} />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-xs">Modelo</Label>
+                        <Input placeholder="Ex: Inspiron 15" value={equipModel} onChange={e => setEquipModel(e.target.value)} />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Número de série</Label>
+                        <Input placeholder="Ex: SN12345678" value={equipSerial} onChange={e => setEquipSerial(e.target.value)} />
+                      </div>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -257,16 +234,31 @@ export default function ServiceOrdersPage() {
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setIsOpen(false)}>Cancelar</Button>
                   <Button 
-                    disabled={createOrderMutation.isPending || !clientId || !equipmentId || !defectReported.trim()}
-                    onClick={() => createOrderMutation.mutate({
-                      clientId: Number(clientId),
-                      equipmentId: Number(equipmentId),
-                      defectReported,
-                      priority: priority as any,
-                      warrantyDays: Number(warrantyDays) || 90,
-                    })}
+                    disabled={createOrderMutation.isPending || createEquipMutation.isPending || !clientId || !equipType.trim() || !defectReported.trim()}
+                    onClick={async () => {
+                      try {
+                        // 1. Cria o equipamento primeiro com os campos livres
+                        const newEquip = await createEquipMutation.mutateAsync({
+                          clientId: Number(clientId),
+                          type: equipType,
+                          brand: equipBrand,
+                          model: equipModel,
+                          serialNumber: equipSerial,
+                        });
+                        // 2. Cria a OS vinculando o equipamento recém-criado
+                        createOrderMutation.mutate({
+                          clientId: Number(clientId),
+                          equipmentId: newEquip.id,
+                          defectReported,
+                          priority: priority as any,
+                          warrantyDays: Number(warrantyDays) || 90,
+                        });
+                      } catch (err: any) {
+                        toast.error(`Erro ao registrar equipamento: ${err.message}`);
+                      }
+                    }}
                   >
-                    {createOrderMutation.isPending ? "Criando OS..." : "Criar Ordem de Serviço"}
+                    {createOrderMutation.isPending || createEquipMutation.isPending ? "Criando OS..." : "Criar Ordem de Serviço"}
                   </Button>
                 </DialogFooter>
               </DialogContent>
