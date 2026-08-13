@@ -2,4 +2,8 @@ packages:
   - '.'
 
 minimumReleaseAge: 0
-dangerouslyAllowAllBuilds: true
+
+allowBuilds:
+  electron: true
+  esbuild: true
+  7zip-bin: true
