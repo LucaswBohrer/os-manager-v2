@@ -5,6 +5,8 @@
 - [x] **Evolução 1: Aprimorar a Criação de OS** (Busca robusta de clientes, cadastro inline completo, dados de equipamento livres, condições de entrada, prioridades e garantia)
 - [ ] **Evolução 2: Tela Profissional da OS** (Abas de resumo, diagnóstico, orçamento, serviços, peças, estoque e timeline)
 - [ ] **Evolução 3: Diagnóstico Técnico** (Laudo, causa, testes e solução executada)
+- [x] **Correção de Linter/TypeScript no Servidor** (Corrigir erros em server/_core/index.ts e server/routers.ts)
+- [ ] **Expansão Detalhada de Diagnóstico** (Campos persistidos para laudo, causa, testes e solução executada)
 - [ ] **Evolução 4: Serviços, Mão de Obra e Orçamento Integrado** (Cálculo de margem, custo, lucro, aprovação e status)
 - [ ] **Evolução 5: Controle de Estoque Vinculado** (Reserva, baixa automática e movimentação)
 - [ ] **Evolução 6: Geração de PDFs Profissionais** (Entrada, Orçamento e Saída/Termo de Garantia)
