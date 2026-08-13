@@ -39,6 +39,50 @@ export default function ServiceOrdersPage() {
   const [priority, setPriority] = useState<string>("normal");
   const [warrantyDays, setWarrantyDays] = useState<string>("90");
 
+  // Novo cliente inline state
+  const [showNewClient, setShowNewClient] = useState(false);
+  const [newClientName, setNewClientName] = useState("");
+  const [newClientPhone, setNewClientPhone] = useState("");
+  const [newClientDoc, setNewClientDoc] = useState("");
+
+  // Novo equipamento inline state (caso queira cadastrar na hora)
+  const [showNewEquip, setShowNewEquip] = useState(false);
+  const [newEquipType, setNewEquipType] = useState("Notebook");
+  const [newEquipBrand, setNewEquipBrand] = useState("");
+  const [newEquipModel, setNewEquipModel] = useState("");
+  const [newEquipSerial, setNewEquipSerial] = useState("");
+
+  const createClientMutation = trpc.clients.create.useMutation({
+    onSuccess: (client) => {
+      toast.success(`Cliente ${client.name} cadastrado e selecionado!`);
+      setClientId(String(client.id));
+      setShowNewClient(false);
+      setNewClientName("");
+      setNewClientPhone("");
+      setNewClientDoc("");
+      clientsQuery.refetch();
+    },
+    onError: (err) => {
+      toast.error(`Erro ao cadastrar cliente: ${err.message}`);
+    }
+  });
+
+  const createEquipMutation = trpc.equipments.create.useMutation({
+    onSuccess: (equip) => {
+      toast.success(`Equipamento cadastrado e vinculado!`);
+      setEquipmentId(String(equip.id));
+      setShowNewEquip(false);
+      setNewEquipType("Notebook");
+      setNewEquipBrand("");
+      setNewEquipModel("");
+      setNewEquipSerial("");
+      equipmentsQuery.refetch();
+    },
+    onError: (err) => {
+      toast.error(`Erro ao cadastrar equipamento: ${err.message}`);
+    }
+  });
+
   const utils = trpc.useUtils();
   const clientsQuery = trpc.clients.list.useQuery();
   const equipmentsQuery = trpc.equipments.list.useQuery(
@@ -108,31 +152,82 @@ export default function ServiceOrdersPage() {
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <div className="space-y-2">
-                    <Label htmlFor="client">Cliente *</Label>
-                    <Select value={clientId} onValueChange={val => { setClientId(val); setEquipmentId(""); }}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o cliente..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {clients.map(c => (
-                          <SelectItem key={c.id} value={String(c.id)}>{c.name} (ID #{c.id})</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="client">Cliente *</Label>
+                      <Button type="button" variant="link" className="h-auto p-0 text-xs" onClick={() => setShowNewClient(!showNewClient)}>
+                        {showNewClient ? "Selecionar existente" : "+ Novo Cliente"}
+                      </Button>
+                    </div>
+                    {showNewClient ? (
+                      <div className="space-y-3 rounded-xl border p-3 bg-muted/30">
+                        <Input placeholder="Nome completo *" value={newClientName} onChange={e => setNewClientName(e.target.value)} />
+                        <div className="grid grid-cols-2 gap-2">
+                          <Input placeholder="Telefone / WhatsApp" value={newClientPhone} onChange={e => setNewClientPhone(e.target.value)} />
+                          <Input placeholder="CPF ou CNPJ" value={newClientDoc} onChange={e => setNewClientDoc(e.target.value)} />
+                        </div>
+                        <Button 
+                          type="button" 
+                          size="sm" 
+                          className="w-full"
+                          disabled={!newClientName.trim() || createClientMutation.isPending}
+                          onClick={() => createClientMutation.mutate({ name: newClientName, phone: newClientPhone, document: newClientDoc })}
+                        >
+                          Salvar e Selecionar Cliente
+                        </Button>
+                      </div>
+                    ) : (
+                      <Select value={clientId} onValueChange={val => { setClientId(val); setEquipmentId(""); }}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione o cliente..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {clients.map(c => (
+                            <SelectItem key={c.id} value={String(c.id)}>{c.name} (ID #{c.id})</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="equipment">Equipamento *</Label>
-                    <Select value={equipmentId} onValueChange={setEquipmentId} disabled={!clientId}>
-                      <SelectTrigger>
-                        <SelectValue placeholder={clientId ? "Selecione o equipamento..." : "Primeiro selecione o cliente"} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {equipments.map(eq => (
-                          <SelectItem key={eq.id} value={String(eq.id)}>{eq.type} {eq.brand} {eq.model} (S/N: {eq.serialNumber || "N/D"})</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="equipment">Equipamento *</Label>
+                      <Button type="button" variant="link" className="h-auto p-0 text-xs" disabled={!clientId} onClick={() => setShowNewEquip(!showNewEquip)}>
+                        {showNewEquip ? "Selecionar existente" : "+ Novo Equipamento"}
+                      </Button>
+                    </div>
+                    {showNewEquip ? (
+                      <div className="space-y-3 rounded-xl border p-3 bg-muted/30">
+                        <div className="grid grid-cols-2 gap-2">
+                          <Input placeholder="Tipo (ex: Notebook, TV)" value={newEquipType} onChange={e => setNewEquipType(e.target.value)} />
+                          <Input placeholder="Marca (ex: Dell, LG)" value={newEquipBrand} onChange={e => setNewEquipBrand(e.target.value)} />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Input placeholder="Modelo" value={newEquipModel} onChange={e => setNewEquipModel(e.target.value)} />
+                          <Input placeholder="Número de Série" value={newEquipSerial} onChange={e => setNewEquipSerial(e.target.value)} />
+                        </div>
+                        <Button 
+                          type="button" 
+                          size="sm" 
+                          className="w-full"
+                          disabled={!clientId || !newEquipType.trim() || createEquipMutation.isPending}
+                          onClick={() => createEquipMutation.mutate({ clientId: Number(clientId), type: newEquipType, brand: newEquipBrand, model: newEquipModel, serialNumber: newEquipSerial })}
+                        >
+                          Cadastrar e Selecionar Equipamento
+                        </Button>
+                      </div>
+                    ) : (
+                      <Select value={equipmentId} onValueChange={setEquipmentId} disabled={!clientId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder={clientId ? "Selecione o equipamento..." : "Primeiro selecione o cliente"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {equipments.map(eq => (
+                            <SelectItem key={eq.id} value={String(eq.id)}>{eq.type} {eq.brand} {eq.model} (S/N: {eq.serialNumber || "N/D"})</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
