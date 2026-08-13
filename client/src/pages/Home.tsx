@@ -79,7 +79,7 @@ export default function Home() {
                 Acompanhe a operação da assistência técnica e mantenha cada ordem de serviço sob controle.
               </p>
             </div>
-            <Button onClick={() => setLocation("/ordens/nova")} className="h-11 gap-2 rounded-xl px-5 shadow-sm">
+            <Button onClick={() => setLocation("/ordens")} className="h-11 gap-2 rounded-xl px-5 shadow-sm">
               <Plus className="h-4 w-4" />
               Nova ordem de serviço
             </Button>
@@ -113,7 +113,7 @@ export default function Home() {
                     <ClipboardList className="mx-auto h-8 w-8 text-muted-foreground/60" />
                     <p className="mt-3 font-medium">Nenhuma ordem registrada ainda</p>
                     <p className="mt-1 text-sm text-muted-foreground">Abra a primeira OS para começar a acompanhar a operação.</p>
-                    <Button variant="outline" className="mt-5" onClick={() => setLocation("/ordens/nova")}>Abrir primeira OS</Button>
+                    <Button variant="outline" className="mt-5" onClick={() => setLocation("/ordens")}>Abrir primeira OS</Button>
                   </div>
                 ) : (
                   <div className="space-y-2">

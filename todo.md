@@ -21,3 +21,10 @@
 - [x] Corrigir e publicar o bootstrap Electron compatível com `type: module` para execução local no Windows
 - [x] Corrigir scripts `dev`/`start` para definir `NODE_ENV` de forma compatível com PowerShell e CMD
 - [ ] Validar a instalação e execução de `cross-env` e Electron no Windows após o `git pull`
+
+- [x] Fechar e validar o login local offline (admin / admin)
+- [ ] Executar auditoria técnica e funcional da versão atual
+- [ ] Corrigir o erro 404 / rota de criação de Ordem de Serviço
+- [ ] Implementar o fluxo completo de criação de OS (Cliente, Equipamento, Defeito, Prioridade, Garantia)
+- [ ] Testar persistência, edição e timeline de OS no banco local JSON
+- [ ] Sincronizar o checkpoint final com o repositório GitHub
