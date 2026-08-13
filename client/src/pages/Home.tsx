@@ -122,7 +122,7 @@ export default function Home() {
                         <div className="flex min-w-0 items-center gap-3">
                           <div className="rounded-xl bg-primary/10 p-2.5 text-primary"><ClipboardList className="h-4 w-4" /></div>
                           <div className="min-w-0">
-                            <p className="font-medium">OS #{String(order.id).padStart(5, "0")}</p>
+                            <p className="font-medium">OS #{order.displayNumber || String(order.sequentialNumber || order.id).padStart(5, "0")}</p>
                             <p className="truncate text-sm text-muted-foreground">{order.defectReported}</p>
                           </div>
                         </div>

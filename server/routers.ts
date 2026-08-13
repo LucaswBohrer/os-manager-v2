@@ -19,6 +19,7 @@ import {
   getServiceOrderParts,
   getServiceOrders,
   updateServiceOrderStatus,
+  updateServiceOrderDetails,
 } from "./db";
 
 const statusSchema = z.enum([

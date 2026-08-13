@@ -88,8 +88,9 @@ export default function ServiceOrdersPage() {
   const createEquipMutation = trpc.equipments.create.useMutation();
   
   const createOrderMutation = trpc.serviceOrders.create.useMutation({
-    onSuccess: (id) => {
-      toast.success(`Ordem de Serviço #${id} criada com sucesso!`);
+    onSuccess: (order: any) => {
+      const num = order?.displayNumber || String(order?.sequentialNumber || order?.id || "").padStart(5, "0");
+      toast.success(`Ordem de Serviço #${num} criada com sucesso!`);
       setIsOpen(false);
       setClientId("");
       setEquipType("");
@@ -115,7 +116,10 @@ export default function ServiceOrdersPage() {
 
   const filtered = orders.filter(o => {
     const clientName = clientMap.get(o.clientId) || "";
+    const displayNum = o.displayNumber || String(o.sequentialNumber || o.id).padStart(5, "0");
     return (
+      displayNum.includes(search) ||
+      String(o.sequentialNumber || "").includes(search) ||
       String(o.id).includes(search) ||
       o.defectReported.toLowerCase().includes(search.toLowerCase()) ||
       clientName.toLowerCase().includes(search.toLowerCase())
@@ -381,7 +385,7 @@ export default function ServiceOrdersPage() {
                       <div key={order.id} className="flex flex-col gap-3 p-4 transition-colors hover:bg-muted/40 sm:flex-row sm:items-center sm:justify-between">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="font-semibold">OS #{String(order.id).padStart(5, "0")}</span>
+                            <span className="font-semibold">OS #{order.displayNumber || String(order.sequentialNumber || order.id).padStart(5, "0")}</span>
                             <Badge variant="outline" className="text-xs">{statusLabels[order.status] || order.status}</Badge>
                             <Badge variant="secondary" className="text-xs">{priorityLabels[order.priority] || order.priority}</Badge>
                           </div>
@@ -389,7 +393,7 @@ export default function ServiceOrdersPage() {
                           <p className="text-xs text-muted-foreground">Cliente: <strong className="text-foreground">{clientName}</strong> • Aberta em {new Date(order.createdAt).toLocaleDateString("pt-BR")}</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm">Gerenciar OS</Button>
+                          <Button variant="outline" size="sm" onClick={() => setLocation(`/ordens/${order.id}`)}>Gerenciar OS</Button>
                         </div>
                       </div>
                     );

@@ -224,11 +224,15 @@ export async function getDashboardMetrics() {
   const totalClients = clients.length;
   const lowStockParts = parts.filter((p: any) => (p.stockQty || 0) <= (p.minStock || 2)).length;
 
+  // Compatibilidade com Home.tsx: clients, openOrders, equipments, parts
+  const equipments = db.equipments || [];
   return {
+    clients: totalClients,
+    openOrders: openedOrders,
+    equipments: equipments.length,
+    parts: parts.length,
     totalOrders,
-    openedOrders,
     completedOrders,
-    totalClients,
     lowStockParts,
   };
 }
